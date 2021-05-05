@@ -1,7 +1,8 @@
 require("@nomiclabs/hardhat-truffle5");
+
 /**
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.5.12",
+  solidity: "0.7.3",
 };
