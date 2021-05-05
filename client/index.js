@@ -14,10 +14,10 @@ let user1;
 let user1MarketAllowed = false;
 
 // Contract address for main contract "MonkeyContract", has to be updated when migrating => i.e. contract address is changing
-const contractAddress = "0x80452f64761452A115248Aa5b006af5fED379Ccb";
+const contractAddress = "0xE9Ff8AF79d0B4b18313aF566E126cc6865ab9665";
 
 // Contract address for marketplace contract "MonkeyMarketplace", has to be updated when migrating => i.e. contract address is changing
-const marketContractAddress = "0xce34ad055BB978001eb8b6376AE5f50FF1cD051a";
+const marketContractAddress = "0x4B367D55BbB8Cf55C5D329C9DC018eDf0bd81c99";
 
 // preparing accounts variable
 let accounts;

@@ -19,6 +19,7 @@ contract("MonkeyContract", accounts => {
 
     // Actual test 1
     it("GEN0_Limit should be 12", async() => {  
+      console.log("Console.log is available here")
       const limit = await testInstance.GEN0_Limit();
 
       console.log("GEN0_Limit is", Number(limit));
@@ -76,7 +77,7 @@ contract("MonkeyContract", accounts => {
       // assert.equal(testingMonkey1, "")
 
     });
-    /*
+    
     // Actual test 4
     it("should console.log the totalSupply", async() => {  
       const totalSupplytesting1 = await testInstance.totalSupply();
@@ -238,7 +239,7 @@ contract("MonkeyContract", accounts => {
     });
 
     
-    
+    /*
     // Actual test 14 xxx - needs to send data as well, still in development
     it("as operator of accounts[0], accounts[1] should use safeTransferFrom to move CMO tokenId3 from accounts[0] to accounts[5] and send in data", async() => {       
       await testInstance.safeTransferFrom(accounts[0], accounts[5], 3, /*"0xa1234",*/ /*{ 
