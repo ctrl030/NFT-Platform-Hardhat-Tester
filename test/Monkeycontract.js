@@ -4,8 +4,8 @@ const MonkeyContract = artifacts.require("MonkeyContract");
 contract("MonkeyContract with HH", accounts => {
   it("Should console.log succesfully", async function() {
     const monkeyContractHHInstance = await MonkeyContract.new();
-
-    console.log("So far very good")
+    console.log(monkeyContractHHInstance);
+    console.log("So far very good");
 
     // assert.equal(await monkeyContractHHInstance.greet(), "Hello, world!");
 
