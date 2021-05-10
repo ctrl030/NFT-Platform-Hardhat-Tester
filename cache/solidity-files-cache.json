@@ -177,8 +177,8 @@
       ]
     },
     "D:\\8Github\\NFT-Platform-Hardhat-Tester\\contracts\\MonkeyMarketplace.sol": {
-      "lastModificationDate": 1619706781049,
-      "contentHash": "79a7c7fdc43b339aec928ba73eba2351",
+      "lastModificationDate": 1620666262647,
+      "contentHash": "56be62fe935d0bab23e4cc4430a6d386",
       "sourceName": "contracts/MonkeyMarketplace.sol",
       "solcConfig": {
         "version": "0.5.12",
@@ -250,40 +250,6 @@
       ],
       "artifacts": [
         "IMonkeyMarketplace"
-      ]
-    },
-    "D:\\8Github\\NFT-Platform-Hardhat-Tester\\contracts\\Migrations.sol": {
-      "lastModificationDate": 1607606024657,
-      "contentHash": "ca8d6ca8a6edf34f149a5095a8b074c9",
-      "sourceName": "contracts/Migrations.sol",
-      "solcConfig": {
-        "version": "0.5.12",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.8.0"
-      ],
-      "artifacts": [
-        "Migrations"
       ]
     }
   }

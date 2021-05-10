@@ -8,7 +8,7 @@ import "./Safemath.sol";
 
 contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   using SafeMath for uint256;
-
+  
   MonkeyContract private _monkeycontract;
 
   struct Offer {
@@ -37,6 +37,11 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
 
   constructor (address _constructorMonkeyContractAddress) public {
     setMonkeyContract(_constructorMonkeyContractAddress); 
+  }
+
+  // XXXXX for setting up testing
+   function returnMonkeyContract() public view returns (MonkeyContract _monkeycontractNow) {
+   return _monkeycontract;
   }
 
  /**
