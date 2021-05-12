@@ -23,9 +23,9 @@ contract MonkeyContract is IERC721, Ownable {
 
     // MonkeyContract address
     address _monkeyContractAddress;   
-     
-    bytes4 internal constant confirmingERC721Received = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
 
+    // implementation of ERC721 
+    bytes4 internal constant confirmingERC721Received = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
     bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
     bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7; 
 
@@ -36,7 +36,7 @@ contract MonkeyContract is IERC721, Ownable {
     // name will be set to "Crypto Monkeys"
     string private _name;
 
-    // ticker symbol will be set to "NFT"
+    // ticker symbol will be set to "MONKEY"
     string private _symbol;
 
     // amount of NFTs total in existence - can be queried by totalSupply function    
@@ -71,13 +71,7 @@ contract MonkeyContract is IERC721, Ownable {
     // operator address (who has approval over all of owner's NFTs) to
     // boolean that shows if the operator address actually is operator or not
     mapping (address => mapping (address => bool)) private operatorApprovalsMapping;  
-
-    /* 
-        not implemented, thinking about how a mapping would work,
-       providing same functionality as allMonkeysArray    
-       mapping(uint256 => CryptoMonkey) public _MonkeyIds2CryptoMonkeyMapping;
-    */
-
+   
     // used to keep track of owners and their crypto monkeys (see below)
     // owner to tokenid to position in this array: _owners2tokenIdArrayMapping
     mapping(address => mapping(uint256 => uint256)) public MonkeyIdPositionsMapping;
@@ -86,9 +80,6 @@ contract MonkeyContract is IERC721, Ownable {
     // tokenId positions are saved in this mapping: MonkeyIdPositionsMapping)
     mapping(address => uint256[]) public _owners2tokenIdArrayMapping;
 
-
-
-   
 
     // Events
 
@@ -140,14 +131,14 @@ contract MonkeyContract is IERC721, Ownable {
 
 
     // Constructor function
-    // is setting _name, and _symbol, as well as creating a couple of test NFTs,
-    // and for them setting _parent1Id, _parent2Id and _generation to 0, 
+    // is setting _name, and _symbol, as well as creating a test NFT,
+    // and for that setting _parent1Id, _parent2Id and _generation to 0, 
     // the _genes to the biggest possible uint256 number (overflow on purpose)
-    // and _owner to contract address
+    // and _owner to zero address, so it is locked away/burnt
 
     constructor() public {
         _name = "Crypto Monkeys";
-        _symbol = "NFT";
+        _symbol = "MONKEY";
         _monkeyContractAddress = address(this);      
         
         _createMonkey(0, 0, 0, 1214131177989271, address(0));
@@ -294,17 +285,6 @@ contract MonkeyContract is IERC721, Ownable {
                 newGeneSequence = newGeneSequence * 100;
             }                
         } 
-
-        /*
-        newGeneSequence = newGeneSequence / 100;
-
-        newGeneSequence = newGeneSequence *100;
-        */
-
-        
-        
-
-
 
         return newGeneSequence;        
     }

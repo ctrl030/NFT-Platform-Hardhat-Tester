@@ -2,7 +2,7 @@ pragma solidity 0.5.12;
 
 contract Ownable {
     
-    //"contractOwner" as not to confuse with "owner"s in the Monkeycontract 
+    //"contractOwner" as not to confuse with NFT "owner"s in the Monkeycontract 
     address payable public contractOwner;
     
     constructor () public {

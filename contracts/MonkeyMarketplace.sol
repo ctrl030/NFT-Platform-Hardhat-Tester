@@ -39,10 +39,12 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
     setMonkeyContract(_constructorMonkeyContractAddress); 
   }
 
-  // XXXXX for setting up testing
-   function returnMonkeyContract() public view returns (MonkeyContract _monkeycontractNow) {
-   return _monkeycontract;
+
+  // Variable getters for testing
+  function returnMonkeyContract() public view returns (MonkeyContract _monkeycontractNow) {
+    return _monkeycontract;
   }
+ 
 
  /**
   * Get the details about a offer for _tokenId. Throws an error if there is no active offer for _tokenId.

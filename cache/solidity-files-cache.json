@@ -36,8 +36,8 @@
       ]
     },
     "D:\\8Github\\NFT-Platform-Hardhat-Tester\\contracts\\Monkeycontract.sol": {
-      "lastModificationDate": 1619706824369,
-      "contentHash": "08c178114ae8e12bc3821d57227d14ad",
+      "lastModificationDate": 1620742653998,
+      "contentHash": "d2d75314a86e912cf7b5e7050b5f3b86",
       "sourceName": "contracts/Monkeycontract.sol",
       "solcConfig": {
         "version": "0.5.12",
@@ -75,8 +75,8 @@
       ]
     },
     "D:\\8Github\\NFT-Platform-Hardhat-Tester\\contracts\\Ownable.sol": {
-      "lastModificationDate": 1607606024660,
-      "contentHash": "e2d821b189050180960fe7dd8f062c7b",
+      "lastModificationDate": 1620742760386,
+      "contentHash": "6d78b8576bea23aa94e32283abba8535",
       "sourceName": "contracts/Ownable.sol",
       "solcConfig": {
         "version": "0.5.12",
@@ -177,8 +177,8 @@
       ]
     },
     "D:\\8Github\\NFT-Platform-Hardhat-Tester\\contracts\\MonkeyMarketplace.sol": {
-      "lastModificationDate": 1620666262647,
-      "contentHash": "56be62fe935d0bab23e4cc4430a6d386",
+      "lastModificationDate": 1620741079449,
+      "contentHash": "8ef77256b48bddfb1ec3d725ee4291b4",
       "sourceName": "contracts/MonkeyMarketplace.sol",
       "solcConfig": {
         "version": "0.5.12",
