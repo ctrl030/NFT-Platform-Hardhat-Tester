@@ -64,7 +64,7 @@ contract('MonkeyContract + MonkeyMarketplace with HH', accounts => {
       assert.equal(limit, 12); 
     });
 
-    it('There should be one monkey in the array after deployment', async () => {  
+    it('There should be one Zero Monkey in the array after deployment', async () => {  
       const totalSupplyAfterDeployment = await monkeyContractHHInstance.totalSupply();
       //const zeroMonkeytest1 = await monkeyContractHHInstance.getMonkeyDetails(0);
       //console.log(zeroMonkeytest1);
@@ -72,14 +72,14 @@ contract('MonkeyContract + MonkeyMarketplace with HH', accounts => {
     });
 
     
-    it('Zero monkey should be owned by zero address', async () => {  
+    it('Zero Monkey should be owned by zero address', async () => {  
       const zeroMonkeytest2 = await monkeyContractHHInstance.getMonkeyDetails(0);
       //console.log(zeroMonkeytest2.owner);
       assert.equal(zeroMonkeytest2.owner, 0x0000000000000000000000000000000000000000)  
     });
 
     
-    it('Zero monkey should be over 9000', async () => { 
+    it('Zero Monkey should be over 9000', async () => { 
       const zeroMonkeytest3 = await monkeyContractHHInstance.getMonkeyDetails(0);
       const zeroGenesNumber = zeroMonkeytest3.genes.toNumber();
       // console.log(zeroGenesNumber);
@@ -87,15 +87,15 @@ contract('MonkeyContract + MonkeyMarketplace with HH', accounts => {
       //console.log('Zero monkey is over 9000')
     });    
 
-    it("should be able to create another 11 monkeys, so there are 12 in total now", async() => {  
+    it("should be able to create 12 gen0 monkeys, so there are 13 in total now", async() => {  
       //console.log("Console.log is available here")
      
-      for (let index = 1; index < 12; index++) {        
+      for (let index = 1; index < 13; index++) {        
         await monkeyContractHHInstance.createGen0Monkey(1111111111111111);
         // console.log(index);        
       }
       const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(totalSupplyAfterCreating12, 12)
+      assert.equal(totalSupplyAfterCreating12, 13)
       /*
       const zeroMonkeytest3 = await monkeyContractHHInstance.getMonkeyDetails(0);
       console.log("monkeyID 0, number 1, zero monkey");
@@ -112,16 +112,27 @@ contract('MonkeyContract + MonkeyMarketplace with HH', accounts => {
       console.log(zeroMonkeytest4.genes.toNumber());
       */
     });
-
-    it("should be able to create another 11 monkeys, so there are 12 in total now", async() => {  
+    
+    it("should fail", async() => {             
         
-      await monkeyContractHHInstance.createGen0Monkey(1111111111111111);
+      await expectRevert.unspecified(
+        monkeyContractHHInstance.createGen0Monkey(1111111111111111)
+      );
       
-      const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(totalSupplyAfterCreating12, 12)
+      const totalSupplynow2 = await monkeyContractHHInstance.totalSupply(); 
+      console.log(totalSupplynow2.toNumber());
+      
+
+      /*
+        await monkeyContractHHInstance.createGen0Monkey(1111111111111111);
+        
+        const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
+        assert.equal(totalSupplyAfterCreating12, 12
+        )
+      */
       
     });
-
+    
   })
 
 });

@@ -297,7 +297,7 @@ contract MonkeyContract is IERC721, Ownable {
     // used for creating gen0 monkeys 
     function createGen0Monkey(uint256 _genes) public onlyOwner {
         // making sure that no more than 12 monkeys will exist in gen0
-        require(gen0amountTotal < GEN0_Limit);
+        require(gen0amountTotal < GEN0_Limit );
 
         // increasing counter of gen0 monkeys 
         gen0amountTotal++;
