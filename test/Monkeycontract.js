@@ -246,9 +246,9 @@ contract('MonkeyContract with HH', accounts => {
         await monkeyContractHHInstance.breed(4, 5, {from: accounts[0]});
 
         // Zero Monkey is in array on index 0, plus 12 NFT monkeys, first free array index is position 13
-        const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);  
-        
-        console.log("Breed Nr." + index + " newMonkeyTokenIdTestingDetails.genes are", parseInt(newMonkeyTokenIdTestingDetails.genes)); 
+        const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);          
+
+        console.log("Breed Nr." + index + " genes are", parseInt(newMonkeyTokenIdTestingDetails.genes)); 
 
         assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[0]);
       }  
@@ -256,9 +256,7 @@ contract('MonkeyContract with HH', accounts => {
 
 
 
-
   })
-
 
 
 
