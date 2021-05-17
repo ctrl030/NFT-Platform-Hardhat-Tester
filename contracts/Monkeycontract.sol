@@ -163,13 +163,13 @@ contract MonkeyContract is IERC721, Ownable {
         // msg.sender needs to be owner of both crypto monkeys
         require(msg.sender == _monkeyIdsAndTheirOwnersMapping[_parent1Id] && msg.sender == _monkeyIdsAndTheirOwnersMapping[_parent2Id]);
 
-        // first 8 digits are selected by dividing, solidity will round down everything to full integers
+        // first 8 digits in DNA will be selected by dividing, solidity will round down everything to full integers
         uint256 _parent1genes = allMonkeysArray[_parent1Id].genes; 
 
-        // second 8 digits are selected by using modulo, it's whats left over and undividable by 100000000
+        // second 8 digits in DNA will be selected by using modulo, it's whats left over and undividable by 100000000
         uint256 _parent2genes = allMonkeysArray[_parent2Id].genes; 
 
-        // calculating new DNA string
+        // calculating new DNA string with mentioned formulas
         uint256 _newDna = _mixDna(_parent1genes, _parent2genes);
 
         // calculate generation here

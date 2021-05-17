@@ -25,9 +25,6 @@ contract('MonkeyContract with HH', accounts => {
       //console.log(accounts[0]);
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
     }) 
-  })
-
-  describe('Testing main contract functionality', () => {
 
     it('_name should be "Crypto Monkeys"', async () => {  
       // console.log(monkeyContractHHInstance._name)
@@ -64,32 +61,35 @@ contract('MonkeyContract with HH', accounts => {
       // console.log(zeroGenesNumber);
       assert.equal(zeroGenesNumber, 1214131177989271)
       //console.log('Zero monkey is over 9000')
-    });    
+    }); 
+  })
 
-    it("accounts[0] should create 11 gen0 monkeys, i.e. 12 exist in total", async() => {  
+  describe('Testing main contract: NFT creation and transfers', () => {      
+
+    it("accounts[0] should create 9 gen0 monkeys with DNA matching their index/tokenId", async() => {  
       //console.log("Console.log is available here")
      
-      for (let index = 1; index < 12; index++) {        
-        await monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]});
-        // console.log(index);        
+      for (let i = 1; i < 10; i++) {
+        
+        const concattedIndexes = `${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}` 
+        // console.log(concattedIndexes);
+        await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});
+        // console.log(index);  
+        const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(i);
+        const genesTested = parseInt(genesTestedDetails.genes);
+        const compareConcats = parseInt(concattedIndexes); 
+        assert.equal(genesTested, compareConcats)        
+      }
+      const totalSupplyAfterCreating10 = await monkeyContractHHInstance.totalSupply();      
+      assert.equal(totalSupplyAfterCreating10, 10)      
+    });
+
+    it("accounts[0] should create 2 additional gen0 monkeys, bringing totalSupply to 12, of which 11 gen0", async() => { 
+      for (let i = 0; i < 2; i++) {              
+        await monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]});                  
       }
       const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(totalSupplyAfterCreating12, 12)
-      /*
-        const zeroMonkeytest3 = await monkeyContractHHInstance.getMonkeyDetails(0);
-        console.log("monkeyID 0, number 1, zero monkey");
-        console.log("tokenId");
-        console.log(zeroMonkeytest3.tokenId);
-        console.log("genes");
-        console.log(zeroMonkeytest3.genes.toNumber());
-
-        const zeroMonkeytest4 = await monkeyContractHHInstance.getMonkeyDetails(11);
-        console.log("monkeyID 11, number 12");
-        console.log("tokenId");
-        console.log(zeroMonkeytest4.tokenId);
-        console.log("genes");
-        console.log(zeroMonkeytest4.genes.toNumber());
-      */
+      assert.equal(totalSupplyAfterCreating12, 12)     
     });
 
     it("accounts[1] should try to create NFT, but is not authorized, should fail", async() => {             
@@ -173,7 +173,7 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(testingMonkeyNr2PosAndId1.owner, accounts[2]);
     });
 
-    it("accounts[2] should give exclusive allowance for Token ID 1 to accounts[3]", async() => {  
+    it("accounts[2] should give exclusive allowance for the NFT with Token ID 1 to accounts[3]", async() => {  
       await monkeyContractHHInstance.approve(accounts[3], 1, { 
         from: accounts[2],
       });
@@ -187,7 +187,7 @@ contract('MonkeyContract with HH', accounts => {
 
     });
 
-    it("getApproved should confirm exclusive allowance for Token ID 1", async() => { 
+    it("getApproved should confirm exclusive allowance for NFT with Token ID 1", async() => { 
 
       const testingAllowedAddressForMonkeyId1 = await monkeyContractHHInstance.getApproved(1);
 
@@ -197,7 +197,7 @@ contract('MonkeyContract with HH', accounts => {
 
     });
     
-    it("accounts[3] should take the allowed Token ID 1 from accounts[2]", async() => {       
+    it("accounts[3] should take the allowed NFT with Token ID 1 from accounts[2]", async() => {       
       await monkeyContractHHInstance.transfer(accounts[3], 1, { 
         from: accounts[3],
       });
@@ -210,7 +210,56 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(testingMonkeyNr2PosAndId1.owner, accounts[3]);
 
     });
+
+    it("as operator of accounts[0], accounts[1] should use safeTransferFrom to move NFT with Token ID 2 from accounts[0] to accounts[4]" , async() => {       
+      await monkeyContractHHInstance.safeTransferFrom(accounts[0], accounts[4], 2, { 
+        from: accounts[1],
+      });
+
+      const testingMonkeyNr3PosAndId2 = await monkeyContractHHInstance.getMonkeyDetails(2);
+
+      //console.log("accounts[4] is", accounts[4]) 
+      //console.log("testingMonkeyNr3PosAndId2.owner is", testingMonkeyNr3PosAndId2.owner);
+
+      assert.equal(testingMonkeyNr3PosAndId2.owner, accounts[4]);
+
+    });
     
+    it("accounts[0] should use safeTransferFrom to move NFT with Token ID 3 from accounts[0] to accounts[5] and also send in data", async() => {       
+      await monkeyContractHHInstance.safeTransferFrom(accounts[0], accounts[5], 3, "0xa1234");
+
+      const testingMonkeyNr4PosAndId3 = await monkeyContractHHInstance.getMonkeyDetails(3);
+
+      //console.log("accounts[5] is", accounts[5]) 
+      //console.log("testingMonkeyNr4PosAndId3.owner is", testingMonkeyNr4PosAndId3.owner);
+
+      assert.equal(testingMonkeyNr4PosAndId3.owner, accounts[5]);
+    })
   })
+
+  describe('Testing main contract: Breeding', () => {      
+
+    it("accounts[0] should breed NFT monkeys (tokenId 4 and 5) 14 times. First 2 digits should make up random number 10-98", async() => {  
+
+      for (let index = 1; index < 15; index++) {    
+        
+        await monkeyContractHHInstance.breed(4, 5, {from: accounts[0]});
+
+        // Zero Monkey is in array on index 0, plus 12 NFT monkeys, first free array index is position 13
+        const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);  
+        
+        console.log("Breed Nr." + index + " newMonkeyTokenIdTestingDetails.genes are", parseInt(newMonkeyTokenIdTestingDetails.genes)); 
+
+        assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[0]);
+      }  
+    });
+
+
+
+
+  })
+
+
+
 
 });
