@@ -1,20 +1,19 @@
 const MonkeyContract = artifacts.require('MonkeyContract');
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
+//const {  } = require('@openzeppelin/test-helpers/expectEvent');
 
 let monkeyContractHHInstance;
 
 
-// Truffle test with Hardhat
+// Hardhat test with openzeppelin, Truffle and web3
 contract('MonkeyContract with HH', accounts => {
 
-  // deploying both contracts 
+  // deploying the main smart contract: MonkeyContract
   before(async()=> {
-    // deploying the main smart contract: MonkeyContract
-    monkeyContractHHInstance = await MonkeyContract.new();    
-    console.log('MonkeyContract deployed');   
+    monkeyContractHHInstance = await MonkeyContract.new();      
   })
 
-  describe('Testing correct deployment', () => {    
+  describe('Testing correct deployment', () => {     
 
     it('accounts[0] should be deployer of main contract', async () => {  
       //console.log('monkeyContractHHInstance.owner: ');
@@ -73,7 +72,10 @@ contract('MonkeyContract with HH', accounts => {
         
         const concattedIndexes = `${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}` 
         // console.log(concattedIndexes);
-        await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});
+        
+        const truffleReceipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});
+        expectEvent(truffleReceipt, 'MonkeyCreated', {  genes: `${concattedIndexes}` });
+
         // console.log(index);  
         const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(i);
         const genesTested = parseInt(genesTestedDetails.genes);
@@ -241,16 +243,28 @@ contract('MonkeyContract with HH', accounts => {
 
     it("accounts[0] should breed NFT monkeys (tokenId 4 and 5) 14 times. First 2 digits should make up random number 10-98", async() => {  
 
+      let firstTwoDigitsNFTNow;
+      let firstTwoDigitsNFTLast = 0;
+
       for (let index = 1; index < 15; index++) {    
         
         await monkeyContractHHInstance.breed(4, 5, {from: accounts[0]});
 
         // Zero Monkey is in array on index 0, plus 12 NFT monkeys, first free array index is position 13
-        const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);          
+        const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);  
+                
+        // comparing first 2 digits of genes
+        let stringOffirstTwoDigitsNFTNow = newMonkeyTokenIdTestingDetails.genes.toString(); 
+        firstTwoDigitsNFTNow = parseInt(stringOffirstTwoDigitsNFTNow.charAt(0)+stringOffirstTwoDigitsNFTNow.charAt(1));
+        //console.log("Breed Nr." + index + " first 2 gene digits LAST are " + firstTwoDigitsNFTLast); 
+        //console.log("Breed Nr." + index + " first 2 gene digits NOW are " + firstTwoDigitsNFTNow);  
+        assert.notEqual(firstTwoDigitsNFTNow, firstTwoDigitsNFTLast);
 
-        console.log("Breed Nr." + index + " genes are", parseInt(newMonkeyTokenIdTestingDetails.genes)); 
+        // the "NFT to check now" becomes the "last NFT checked" for next loop
+        firstTwoDigitsNFTLast = firstTwoDigitsNFTNow;
 
-        assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[0]);
+        // checking if contract owner is owner of NFT
+        assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[0]);        
       }  
     });
 
