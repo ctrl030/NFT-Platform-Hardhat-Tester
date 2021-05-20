@@ -1,6 +1,6 @@
 const MonkeyContract = artifacts.require('MonkeyContract');
 const MonkeyMarketplace = artifacts.require('MonkeyMarketplace');
-const { expectRevert } = require('@openzeppelin/test-helpers');
+const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
@@ -9,6 +9,7 @@ let monkeyMarketplaceHHInstance;
 // Truffle test with Hardhat
 contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
+  // Before running the tests, deploying a new MonkeyContract and MonkeyMarketplace each
   before(async()=> {
     // deploying the main smart contract: MonkeyContract
     monkeyContractHHInstance = await MonkeyContract.new();    
@@ -22,7 +23,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
   describe('Testing correct deployment', () => {
 
-    it('Market should know main contract address', async () => {  
+    // starts at 23
+    it('Test 23: Market should know main contract address', async () => {  
 
       //console.log('monkeyContractHHInstance.address: ');
       //console.log(monkeyContractHHInstance.address);
@@ -35,7 +37,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       // console.log('Both addresses are the same.')      
     }) 
 
-    it('accounts[0] should be deployer of main contract', async () => {  
+    // 24
+    it('Test 24: accounts[0] should be deployer of main contract', async () => {  
       //console.log('monkeyContractHHInstance.owner: ');
       //console.log(monkeyContractHHInstance);
       const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()
