@@ -13,11 +13,11 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
   before(async()=> {
     // deploying the main smart contract: MonkeyContract
     monkeyContractHHInstance = await MonkeyContract.new();    
-    console.log('MonkeyContract deployed');
+    // console.log('MonkeyContract deployed');
 
     // deploying the marketplace smart contract: MonkeyMarketplace and sending the address of the MonkeyContract to the marketplace constructor
     monkeyMarketplaceHHInstance = await MonkeyMarketplace.new(monkeyContractHHInstance.address); 
-    console.log('MonkeyMarketplace deployed');
+    // console.log('MonkeyMarketplace deployed');
    
   })
 
@@ -47,9 +47,18 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       //console.log(accounts[0]);
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
     }) 
+
+    // 25
+    it('Test 25: accounts[0] should be deployer of market contract', async () => {  
+      //console.log('monkeyContractHHInstance.owner: ');
+      //console.log(monkeyContractHHInstance);
+      const marketContractHHInstanceOwner = await monkeyMarketplaceHHInstance.contractOwner()
+      //console.log(monkeyContractHHInstanceOwner);
+      //console.log("accounts[0]");
+      //console.log(accounts[0]);
+      assert.equal(marketContractHHInstanceOwner, accounts[0]);
+    }) 
+
   })
-
-
-
  
 });
