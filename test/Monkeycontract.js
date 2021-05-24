@@ -228,9 +228,9 @@ contract('MonkeyContract with HH', accounts => {
     });
 
     // 16A
-    it('Test 16A: as operator, accounts[1] should use transferFrom to take 6 NFTs with Token IDs 7-12 from accounts[0]', async() => {  
+    it('Test 16A: as operator, accounts[1] should use transferFrom to take 7 NFTs with Token IDs 6-12 from accounts[0]', async() => {  
       
-      for (let index = 7; index <= 12; index++) {
+      for (let index = 6; index <= 12; index++) {
         await monkeyContractHHInstance.transferFrom(accounts[0], accounts[1], `${index}`, { 
           from: accounts[1],
         });
@@ -270,8 +270,8 @@ contract('MonkeyContract with HH', accounts => {
     });
     
     // 19
-    it('Test 19: accounts[2] should take the allowed NFT with Token ID 7 from accounts[1]', async() => {       
-      await monkeyContractHHInstance.transfer(accounts[2], 7, {from: accounts[2]});
+    it('Test 19: accounts[2] should use transferFrom to take the allowed NFT with Token ID 7 from accounts[1]', async() => {       
+      await monkeyContractHHInstance.transferFrom(accounts[1], accounts[2], 7, {from: accounts[2]});
 
       const testingMonkeyNr7 = await monkeyContractHHInstance.getMonkeyDetails(7);
 
@@ -283,8 +283,8 @@ contract('MonkeyContract with HH', accounts => {
     });
 
     // 20
-    it('Test 20: as operator of accounts[0], accounts[1] should use safeTransferFrom to move NFT with Token ID 6 from accounts[0] to accounts[3]' , async() => {       
-      await monkeyContractHHInstance.safeTransferFrom(accounts[0], accounts[3], 6, { 
+    it('Test 20: accounts[1] should use transfer to send NFT with Token ID 6 to accounts[3]' , async() => {       
+      await monkeyContractHHInstance.transfer(accounts[3], 6, { 
         from: accounts[1],
       });
 
@@ -336,8 +336,8 @@ contract('MonkeyContract with HH', accounts => {
     // 22
     it('Test 22: accounts[3] should breed NFT monkeys (tokenId 5 and 6) 14 times. First 2 digits should make up random number 10-98 (test throws if first two digits of 2 NFTs in a row are the same)', async() => {  
 
-      let firstTwoDigitsNFTNow;
-      let firstTwoDigitsNFTLast = 0;      
+      //let firstTwoDigitsNFTNow;
+      //let firstTwoDigitsNFTLast = 0;      
 
       // checking how many NFTs are owned by accounts[3] at the start, should be 2, Token IDs 5 and 6
       const prepAmountNFTsForAccounts3 = await monkeyContractHHInstance.balanceOf(accounts[3]);
@@ -376,12 +376,6 @@ contract('MonkeyContract with HH', accounts => {
       }
 
     });
-
-
-
-
-
-
 
     it('Test 22A: accounts[3] should use safeTransferFrom to move 4 NFTs from itself to accounts[4]. Token IDs 5 and 6 (gen0) and Token IDs 14 and 15 (gen1)' , async() => {       
       // transferring Token ID 15
@@ -425,7 +419,7 @@ contract('MonkeyContract with HH', accounts => {
                          
         if (bigNumberAccounts4InnerArray[counter2] != 0) {          
           const bigNumberToConvert = bigNumberAccounts4InnerArray[counter2];
-          const convertedNumberToPush = bigNumberToConvert.toString();
+          const convertedNumberToPush = parseInt(bigNumberToConvert);
           convertedNumArrayAcc4.push( convertedNumberToPush ); 
         }
       }
@@ -452,7 +446,7 @@ contract('MonkeyContract with HH', accounts => {
         
         if (bigNumberAccounts3InnerArray[counter3] != 0) {
         const bigNumberToConvert2 = bigNumberAccounts3InnerArray[counter3];        
-        const convertedNumberToPush2 = bigNumberToConvert2.toString();        
+        const convertedNumberToPush2 = parseInt(bigNumberToConvert2);        
         convertedNumArrayAcc3.push( convertedNumberToPush2 ); 
         }       
         
@@ -468,7 +462,53 @@ contract('MonkeyContract with HH', accounts => {
       //console.log(convertedNumArrayAcc3);
 
     });
+    
+    /*
+    it('Test 22B: accounts[4] should use breed to create 2 NFTs each of gen2, gen3, gen4, gen5, gen6 and gen7, i.e. should have 16 NFTs at the end (2x gen0 - 2x gen7) ' , async() => { 
 
+      for (let index22B = 0; index22B < 2; index22B++) {
+        await monkeyContractHHInstance.breed(14, 15, {from: accounts[4]});        
+      }  
+      
+      
+
+      let test22BFirsttokenIdCounter = 27;
+      let test22BSecondtokenIdCounter = test22BFirsttokenIdCounter+1;
+
+      let test22Bgeneration = 2;
+
+      for (let t22BigLoop = 0; t22BigLoop < 7; t22BigLoop++) {
+
+        for (let index22B = 0; index22B < 2; index22B++) {
+          await monkeyContractHHInstance.breed(test22BFirsttokenIdCounter, test22BSecondtokenIdCounter, {from: accounts[4]});        
+        }  
+
+        const test22BFirstTokenVar = "const test22BToken".concat(test22BFirsttokenIdCounter);
+        const test22BSecondTokenVar = "const test22BToken".concat(test22BSecondtokenIdCounter);
+        console.log(test22BFirstTokenVar);
+        console.log(test22BSecondTokenVar);
+
+        // gen2s should be Token IDs 27 and 28
+        eval(test22BFirstTokenVar) = "works";
+
+        console.log(test22BToken27);
+        
+        /*await monkeyContractHHInstance.getMonkeyDetails(test22BtokenIdCounter);  // last number should start at 27 and +2 each time, also variable should be named dynamically, ending with 27 and +1 each time
+        assert.equal(test22BFirstTokenVar.owner, accounts[4]) // variable should already exist here, re-use
+        assert.equal(test22BFirstTokenVar.generation, test22Bgeneration)  // same, also last number should start at 2 and +1 each time
+
+        /*`${test22BSecondTokenVar}` = await monkeyContractHHInstance.getMonkeyDetails(test22BtokenIdCounter+1);  
+        assert.equal(test22BSecondTokenVar.owner, accounts[4])        
+        assert.equal(test22BSecondTokenVar.generation, test22Bgeneration)       
+        
+        test22Bgeneration++;      
+        test22BFirsttokenIdCounter = test22BFirsttokenIdCounter +2;        
+      }
+      
+
+      
+
+    });*/
   });
 
 

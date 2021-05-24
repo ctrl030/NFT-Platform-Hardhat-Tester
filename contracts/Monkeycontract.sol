@@ -73,6 +73,7 @@ contract MonkeyContract is IERC721, Ownable {
     mapping (address => mapping (address => bool)) private operatorApprovalsMapping;      
 
     // maps owner to an array that holds all their tokenIds
+    // can be queried by findMonkeyIdsOfAddress function
     // tokenId positions are saved in this mapping: MonkeyIdPositionsMapping , (see below) 
     mapping(address => uint256[]) public _owners2tokenIdArrayMapping;
 
@@ -449,8 +450,8 @@ contract MonkeyContract is IERC721, Ownable {
         
         require (_isOwnerOrOperatorOrAllowed(msg.sender, _to, _tokenId));
 
-        // calling internal transfer function, providing both msg.sender as well as owner, in case they are different (operator is acting)
-        _transferCallfromInside(msg.sender, monkeyOwner, _to, _tokenId);
+        // calling internal transfer function, msg.sender is owner, hardcoded
+        _transferCallfromInside(msg.sender, msg.sender, _to, _tokenId);
     }
 
 
@@ -470,6 +471,7 @@ contract MonkeyContract is IERC721, Ownable {
 
         address monkeyOwner = _monkeyIdsAndTheirOwnersMapping[_tokenId];
 
+        // calling internal transfer function, providing both msg.sender as well as owner, in case they are different (operator is acting)
         _transferCallfromInside(msg.sender, monkeyOwner, _to, _tokenId);
 
     }    
