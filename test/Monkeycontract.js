@@ -417,47 +417,27 @@ contract('MonkeyContract with HH', accounts => {
       const bigNumberAccounts4OuterArray = [];
       bigNumberAccounts4OuterArray.push( await monkeyContractHHInstance.findMonkeyIdsOfAddress(accounts[4]) ); 
 
-      const bigNumberAccounts4InnerArray = bigNumberAccounts4OuterArray[0];
-      //console.log('bigNumberAccounts4InnerArray: ');
-      //console.log(bigNumberAccounts4InnerArray);
-      //console.log('bigNumberAccounts4InnerArray.length: ');
-      //console.log(bigNumberAccounts4InnerArray.length);
+      const bigNumberAccounts4InnerArray = bigNumberAccounts4OuterArray[0];      
 
-      const convertedNumbersarray = [];
+      const convertedNumArrayAcc4 = [];
 
       for (let counter2 = 0; counter2 < bigNumberAccounts4InnerArray.length; counter2++) {
-        
-        //console.log('counter2 is index: ');
-        //console.log(counter2);
-        /*
-        const innerArray = bigNumberAccounts4Array[counter];
-        console.log('innerArray.length: ');
-        console.log(innerArray.length);*/
-         
-
-        
-        const bigNumberToConvert = bigNumberAccounts4InnerArray[counter2];
-        //console.log('bigNumberToConvert in loop: ');
-        //console.log(bigNumberToConvert);
-
-        const convertedNumberToPush = bigNumberToConvert.toString();
-        //console.log('convertedNumberToPush in loop: ');
-        //console.log(convertedNumberToPush);
-
-        convertedNumbersarray.push( convertedNumberToPush ); 
-        //console.log('convertedNumbersarray in loop: ');
-        //console.log(convertedNumbersarray);
+                         
+        if (bigNumberAccounts4InnerArray[counter2] != 0) {          
+          const bigNumberToConvert = bigNumberAccounts4InnerArray[counter2];
+          const convertedNumberToPush = bigNumberToConvert.toString();
+          convertedNumArrayAcc4.push( convertedNumberToPush ); 
+        }
       }
 
       // checking how many NFTs are owned by accounts[4], should be 4: Token IDs 5, 6, 14, 15
       const prepAmountNFTsForAccounts4 = await monkeyContractHHInstance.balanceOf(accounts[4]);
       const amountNFTsForAccounts4 = parseInt(prepAmountNFTsForAccounts4) ;
-      console.log('amountNFTsForAccounts4: ');
-      console.log(amountNFTsForAccounts4);
       assert.equal(amountNFTsForAccounts4, 4)
-      
-      console.log('convertedNumbersarray at end: ');
-      console.log(convertedNumbersarray);
+      //console.log('amountNFTsForAccounts4: ');
+      //console.log(amountNFTsForAccounts4);      
+      //console.log('convertedNumArrayAcc4 at end: ');
+      //console.log(convertedNumArrayAcc4);
 
 
       // repeat procedure for accounts[3]      
@@ -466,31 +446,26 @@ contract('MonkeyContract with HH', accounts => {
 
       const bigNumberAccounts3InnerArray = bigNumberAccounts3OuterArray[0];     
 
-      const convertedNumbersarray3 = [];
+      const convertedNumArrayAcc3 = [];
 
       for (let counter3 = 0; counter3 < bigNumberAccounts3InnerArray.length; counter3++) {
         
-        const bigNumberToConvert2 = bigNumberAccounts3InnerArray[counter3];
-        
-        const convertedNumberToPush2 = bigNumberToConvert2.toString();
-        
-        convertedNumbersarray3.push( convertedNumberToPush2 ); 
+        if (bigNumberAccounts3InnerArray[counter3] != 0) {
+        const bigNumberToConvert2 = bigNumberAccounts3InnerArray[counter3];        
+        const convertedNumberToPush2 = bigNumberToConvert2.toString();        
+        convertedNumArrayAcc3.push( convertedNumberToPush2 ); 
+        }       
         
       }     
-
-      
-      console.log('convertedNumbersarray3 at end: ');
-      console.log(convertedNumbersarray3);
-      // checking how many NFTs are owned by accounts[3], should be ...
+            
+      // checking how many NFTs are owned by accounts[3], should be 12 (2 gen0 have been sent, also Token IDs 14 and 15, i.e. 12 left of 14 bred)
       const prepAmountNFTsForAccounts3 = await monkeyContractHHInstance.balanceOf(accounts[3]);
       const amountNFTsForAccounts3 = parseInt(prepAmountNFTsForAccounts3) ;
-      console.log('amountNFTsForAccounts3: ');
-      console.log(amountNFTsForAccounts3);
-      //assert.equal(amountNFTsForAccounts3, 4)
-
-
-
-      
+      assert.equal(amountNFTsForAccounts3, 12)
+      //console.log('amountNFTsForAccounts3: ');
+      //console.log(amountNFTsForAccounts3);
+      //console.log('convertedNumArrayAcc3 at end: ');
+      //console.log(convertedNumArrayAcc3);
 
     });
 
