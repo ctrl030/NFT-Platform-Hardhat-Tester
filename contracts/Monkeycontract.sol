@@ -39,7 +39,7 @@ contract MonkeyContract is IERC721, Ownable {
     // ticker symbol will be set to "MONKEY"
     string private _symbol;
 
-    // amount of NFTs total in existence - can be queried by totalSupply function    
+    // amount of NFTs total in existence - can be queried by showTotalSupply function    
     uint256 public totalSupply;
 
     // this struct is the blueprint for new NFTs, they will be created from it
@@ -427,13 +427,11 @@ contract MonkeyContract is IERC721, Ownable {
     function symbol() external view returns (string memory) {
         return _symbol;
     }
-
-    /*
-        // Returns the _totalSupply if it exists as private state variable
-        function totalSupply() external view returns (uint256) {
-            return _totalSupply;
-        }
-    */
+    
+    // Returns the _totalSupply
+    function showTotalSupply() external view returns (uint256) {
+        return totalSupply;
+    }   
 
     // Returns the amount of tokens in an address' account
     function balanceOf(address owner) external view returns (uint256) {
