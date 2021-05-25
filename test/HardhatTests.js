@@ -55,7 +55,7 @@ async function showAllNFTsWithOwnerAndGen() {
   }
 }
 
-// Hardhat test with openzeppelin, Truffle and web3
+// Main contract Hardhat test with openzeppelin, Truffle and web3
 contract('MonkeyContract with HH', accounts => {
 
   // deploying the main smart contract: MonkeyContract
@@ -64,9 +64,6 @@ contract('MonkeyContract with HH', accounts => {
     monkeyContractHHInstance = await MonkeyContract.new();    
     // console.log('MonkeyContract deployed');   
   })
-
-  
-  
 
   describe('Testing correct deployment', () => {     
 
@@ -524,7 +521,7 @@ contract('MonkeyContract with HH', accounts => {
 
 });
 
-// Truffle test with Hardhat
+// Market contract Hardhat test with openzeppelin, Truffle and web3
 contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
   // Before running the tests, deploying a new MonkeyMarketplace 
@@ -553,8 +550,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     // 24
     it('Test 24: accounts[0] should be deployer of main contract', async () => {  
-      //console.log('monkeyContractHHInstance.owner: ');
-      //console.log(monkeyContractHHInstance);
+      
       const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()
       //console.log(monkeyContractHHInstanceOwner);
       //console.log("accounts[0]");
@@ -564,15 +560,29 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     // 25
     it('Test 25: accounts[0] should be deployer of market contract', async () => {  
-      //console.log('monkeyContractHHInstance.owner: ');
-      //console.log(monkeyContractHHInstance);
+      
       const marketContractHHInstanceOwner = await monkeyMarketplaceHHInstance.contractOwner()
-      //console.log(monkeyContractHHInstanceOwner);
+      //console.log(marketContractHHInstanceOwner);
       //console.log("accounts[0]");
       //console.log(accounts[0]);
       assert.equal(marketContractHHInstanceOwner, accounts[0]);
     }) 
 
-  })
+  });
+
+  describe('Testing creating and deleting offers', () => {
+    
+    it('Test 26: accounts[2] and accounts[4] should give market contract operator status', async () => {    
+
+      await monkeyContractHHInstance.setApprovalForAll(monkeyMarketplaceHHInstance.address, true, {from: accounts[2]});
+      let resultAcc2Test26 = await monkeyContractHHInstance.isApprovedForAll(accounts[2], monkeyMarketplaceHHInstance.address);     
+      assert.equal(resultAcc2Test26, true);
+
+      await monkeyContractHHInstance.setApprovalForAll(monkeyMarketplaceHHInstance.address, true, {from: accounts[4]});
+      let resultAcc4Test26 = await monkeyContractHHInstance.isApprovedForAll(accounts[4], monkeyMarketplaceHHInstance.address);
+      assert.equal(resultAcc4Test26, true);
+    }) 
+
+  });
  
 });
