@@ -6,6 +6,8 @@ import "./IMonkeyMarketplace.sol";
 // preparing safemath to rule out over- and underflow  
 import "./Safemath.sol";
 
+import "hardhat/console.sol";
+
 contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   using SafeMath for uint256;
   
@@ -19,8 +21,10 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
     bool active;
   }
 
+  // Array of all offers
   Offer[] offersArray; 
 
+  // Mapping of Token ID to offer
   mapping (uint256 => Offer) tokenIdToOfferMapping;   
 
   event MarketTransaction(string TxType, address owner, uint256 tokenId);
@@ -66,21 +70,40 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   /**
   * Get all tokenId's that are currently for sale. 
   * Returns an empty array if none exist.
+  // adds a Token ID to the 'result' array each time the loop finds an active offer in the offersArray  
   */
   function getAllTokenOnSale() external view returns(uint256[] memory listOfOffers) {  
 
-    uint256 numberOfOffers = offersArray.length;
+    // counting active offers, needed to create correct hardcoded length of 'result' array
+    uint256 numberOfActiveOffers;
+    
+    // looking through offersArray at each postion
+    for (uint256 actCount = 0; actCount < offersArray.length; actCount++) {
 
-    if (numberOfOffers == 0){
+      // each time an active offer is found, numberOfActiveOffers is increased by 1
+      if (offersArray[actCount].active) {
+        numberOfActiveOffers++;
+      }
+    }     
+
+    // if no active offers are found, an empty array is returned
+    if (numberOfActiveOffers == 0){
       return new uint256[](0);
     }
+    // looking again through offersArray at each postion
     else {
+      // 'result' array with hardcoded length, defined by active offers found above
+      uint256[] memory result = new uint256[](numberOfActiveOffers);      
 
-      uint256[] memory result = new uint256[](numberOfOffers);
+      // index position in result array
+      uint256 newIndex = 0 ;
 
-      for (uint256 k = 0; k < numberOfOffers; k++) {
+      for (uint256 k = 0; k < offersArray.length; k++) {
+        
+        // each time an active offer is found, it is entered into the next position in the 'result' array
         if (offersArray[k].active) {
-          result[k] = offersArray[k].tokenId;
+          result[newIndex] = offersArray[k].tokenId;
+          newIndex++;
         }         
       }
 

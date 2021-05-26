@@ -33,11 +33,11 @@ async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSel
   let priceInWEITestingResult = parseInt(assertOfferTestingResult.price); 
   let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
   
-  assert.equal(tokenId, returnedTokenId);
-  assert.equal(expectedActive, returnedActive);
-  assert.equal(expectedSeller, returnedSeller);
-  assert.equal(expectedPriceInETH, priceInETHTestingResult);
-  assert.equal(expectedPriceInWEI, priceInWEITestingResult);
+  assert.equal(returnedTokenId, tokenId);
+  assert.equal(returnedActive, expectedActive);
+  assert.equal(returnedSeller, expectedSeller);
+  assert.equal(priceInETHTestingResult, expectedPriceInETH);
+  assert.equal(priceInWEITestingResult, expectedPriceInWEI);
 }
 
 // creates an offer and asserts if values are correct
@@ -112,14 +112,28 @@ async function showActiveOfferForTokenID(tokenId) {
 
 // for testing/debugging: show all Token IDs with active offer
 async function showingTokenIDsWithActiveOffer() {
-  let checkAllActiveOffersArray = await monkeyMarketplaceHHInstance.getAllTokenOnSale();
+  let actOffersBNArr = await monkeyMarketplaceHHInstance.getAllTokenOnSale();
+  let activeOffers = [];
 
-  for (let checkOffersIndex = 0; checkOffersIndex < checkAllActiveOffersArray.length; checkOffersIndex++) {
-    console.log( 'Found active for Token ID: ' + parseInt(checkAllActiveOffersArray[checkOffersIndex]) );         
+  for (let checkOffersIndex = 0; checkOffersIndex < actOffersBNArr.length; checkOffersIndex++) {    
+    let offerToCheck = parseInt(actOffersBNArr[checkOffersIndex]);
+    activeOffers.push(offerToCheck);
+    console.log( 'Found active for Token ID: ' + offerToCheck);      
   }
+
+  console.log('activeOffers');
+  console.log(activeOffers);
+
 }
 
+// asserting that a specific number of sales offers are active
+// xxxx should also count assertions
+async function assertAmountOfActiveOffersAndCount(expectedAmount) {
+  const actOffersBNArr = await monkeyMarketplaceHHInstance.getAllTokenOnSale();
+  const activeOffersAmount = actOffersBNArr.length;
 
+  assert.equal(activeOffersAmount, expectedAmount);
+}
 
 
 // Main contract Hardhat test with openzeppelin, Truffle and web3
@@ -459,7 +473,7 @@ contract('MonkeyContract with HH', accounts => {
   describe('Testing main contract: Breeding', () => {     
 
     // 22
-    it('Test 22: accounts[3] should breed NFT monkeys (tokenId 5 and 6) 14 times. First 2 digits should make up random number 10-98 (test throws if first two digits of 2 NFTs in a row are the same)', async() => {  
+    it('Test 22: accounts[3] should breed NFT monkeys (Token IDs 5 and 6) 14 times. First 2 digits should make up random number 10-98 (test throws if first two digits of 2 NFTs in a row are the same)', async() => {  
 
       //let firstTwoDigitsNFTNow;
       //let firstTwoDigitsNFTLast = 0;      
@@ -679,20 +693,24 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     
 
-    it('Test 29: accounts[2] should delete 1 active offer', async () => {  
+    it('Test 29: accounts[2] should delete 1 active offer (Token ID: 4), now 7 active offers should exist', async () => {  
 
       await monkeyMarketplaceHHInstance.removeOffer(4, {from: accounts[2]});
 
       await expectNoActiveOfferAndCount(4); 
+
+      await assertAmountOfActiveOffersAndCount(7);
     }) 
 
-    it('Test 30: accounts[4] should delete 1 active offer', async () => {  
+    it('Test 30: accounts[4] should delete 1 active offer (Token ID: 35), now 6 active offers should exist', async () => {  
 
       await monkeyMarketplaceHHInstance.removeOffer(35, {from: accounts[4]});
 
       await expectNoActiveOfferAndCount(35); 
 
-      await showingTokenIDsWithActiveOffer();
+      //await showingTokenIDsWithActiveOffer();
+
+      await assertAmountOfActiveOffersAndCount(6);
     }) 
     
     
