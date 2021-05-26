@@ -5,6 +5,23 @@ const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
 
+
+// asserting an amount of NFTs for an account
+async function assertAmountofNFTs(acc, amount){
+// checking how many NFTs are owned by account 'acc' (incoming accounts[XXXX]), should be YYYY 
+const prepAmountNFTsAcc = await monkeyContractHHInstance.balanceOf(acc);
+const ammountNFTsAcc = parseInt(prepAmountNFTsAcc) ;
+assert.equal(ammountNFTsAcc, amount)
+}
+
+// asserting owner and generation for an NFT
+async function assertOwnerAndGeneration(ownerToExpect, tokenId, genToExpect){
+  let testOwnAndGenDetails  = await monkeyContractHHInstance.getMonkeyDetails(tokenId); 
+  assert.equal(testOwnAndGenDetails.owner, ownerToExpect);
+  assert.equal(testOwnAndGenDetails.generation, genToExpect);
+}
+
+// for testing/debugging: show the NFT array of an account
 async function showArrayOfAccount(acc){
   // checking which NFTs are owned by account 'acc', should be YYYY: Token IDs Z,A,B,C
   const bigNrAccOutArr = [];
@@ -24,20 +41,6 @@ async function showArrayOfAccount(acc){
   console.log(convertedNumArr);  
 }
 
-// asserting an amount of NFTs for an account
-async function assertAmountofNFTs(acc, amount){
-// checking how many NFTs are owned by account 'acc' (incoming accounts[XXXX]), should be YYYY 
-const prepAmountNFTsAcc = await monkeyContractHHInstance.balanceOf(acc);
-const ammountNFTsAcc = parseInt(prepAmountNFTsAcc) ;
-assert.equal(ammountNFTsAcc, amount)
-}
-
-// asserting owner and generation for an NFT
-async function assertOwnerAndGeneration(ownerToExpect, tokenId, genToExpect){
-  let testOwnAndGenDetails  = await monkeyContractHHInstance.getMonkeyDetails(tokenId); 
-  assert.equal(testOwnAndGenDetails.owner, ownerToExpect);
-  assert.equal(testOwnAndGenDetails.generation, genToExpect);
-}
 
 // for testing/debugging: show owner and generation for an NFT
 async function showOwnerAndGeneration(tokenIdToTest){
@@ -54,6 +57,46 @@ async function showAllNFTsWithOwnerAndGen() {
     showOwnerAndGeneration(showAllInd);
   }
 }
+
+// for testing/debugging: show offer for Token ID
+async function showOfferForTokenID(tokenId) {
+
+  let offerTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);        
+
+  console.log('Offer Nr.: ' + tokenId + ' Token ID: ' + parseInt(offerTestingResult.tokenId));
+  console.log('Offer Nr.: ' + tokenId + ' Active: ' + offerTestingResult.active);
+  console.log('Offer Nr.: ' + tokenId + ' Index: ' + parseInt(offerTestingResult.index));
+  console.log('Offer Nr.: ' + tokenId + ' Seller: ' + offerTestingResult.seller);
+
+  let priceInWEITestingResult = parseInt(offerTestingResult.price); 
+  console.log('Offer Nr.: ' + tokenId + ' Price in WEI: ' + priceInWEITestingResult );  
+
+  let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
+  console.log('Offer Nr.: ' + tokenId + ' Price in ETH: ' + priceInETHTestingResult );  
+  console.log('-----------------------------------');
+
+}
+
+async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSeller, expectedPriceInETH ) {
+
+  let expectedPriceInWEI = web3.utils.toWei(expectedPriceInETH);
+
+  let assertOfferTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);
+
+  let returnedTokenId = parseInt(assertOfferTestingResult.tokenId); 
+  let returnedActive = assertOfferTestingResult.active;
+  let returnedSeller = assertOfferTestingResult.seller;
+  let priceInWEITestingResult = parseInt(assertOfferTestingResult.price); 
+  let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
+  
+  assert.equal(tokenId, returnedTokenId);
+  assert.equal(expectedActive, returnedActive);
+  assert.equal(expectedSeller, returnedSeller);
+  assert.equal(expectedPriceInETH, priceInETHTestingResult);
+  assert.equal(expectedPriceInWEI, priceInWEITestingResult);
+
+}
+
 
 // Main contract Hardhat test with openzeppelin, Truffle and web3
 contract('MonkeyContract with HH', accounts => {
@@ -583,6 +626,33 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       assert.equal(resultAcc4Test26, true);
     }) 
 
+    it('Test 27: accounts[2] should create 4 offers', async () => {    
+
+      for (let test27Counter = 1; test27Counter <= 4; test27Counter++) {        
+
+        let priceInETHTest27 = test27Counter.toString(); 
+
+        let priceInWEIForCallingTest27 = web3.utils.toWei(priceInETHTest27); // priceInETHTest27 * 1000000000000000000;
+
+        await monkeyMarketplaceHHInstance.setOffer(priceInWEIForCallingTest27, test27Counter, {from: accounts[2]});
+
+        await showOfferForTokenID(test27Counter);
+
+        await assertOfferDetailsForTokenID(test27Counter, true, accounts[2], priceInETHTest27 );
+
+        
+      }
+
+      
+
+     
+    }) 
+
+    
+    
+
   });
+
+
  
 });
