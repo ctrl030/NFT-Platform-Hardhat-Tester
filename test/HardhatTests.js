@@ -5,7 +5,6 @@ const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
 
-
 // asserting an amount of NFTs for an account
 async function assertAmountofNFTs(acc, amount){
 // checking how many NFTs are owned by account 'acc' (incoming accounts[XXXX]), should be YYYY 
@@ -19,6 +18,40 @@ async function assertOwnerAndGeneration(ownerToExpect, tokenId, genToExpect){
   let testOwnAndGenDetails  = await monkeyContractHHInstance.getMonkeyDetails(tokenId); 
   assert.equal(testOwnAndGenDetails.owner, ownerToExpect);
   assert.equal(testOwnAndGenDetails.generation, genToExpect);
+}
+
+// assert an offer's details
+async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSeller, expectedPriceInETH ) {
+
+  let expectedPriceInWEI = web3.utils.toWei(expectedPriceInETH);
+
+  let assertOfferTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);
+
+  let returnedTokenId = parseInt(assertOfferTestingResult.tokenId); 
+  let returnedActive = assertOfferTestingResult.active;
+  let returnedSeller = assertOfferTestingResult.seller;
+  let priceInWEITestingResult = parseInt(assertOfferTestingResult.price); 
+  let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
+  
+  assert.equal(tokenId, returnedTokenId);
+  assert.equal(expectedActive, returnedActive);
+  assert.equal(expectedSeller, returnedSeller);
+  assert.equal(expectedPriceInETH, priceInETHTestingResult);
+  assert.equal(expectedPriceInWEI, priceInWEITestingResult);
+}
+
+// creates an offer and asserts if values are correct
+async function createOfferAndAssert (priceInETH, tokenId, fromAccount) {
+  let priceInETHTesting = priceInETH.toString(); 
+  let priceInWEIForCallingTest28 = web3.utils.toWei(priceInETHTesting); 
+  await monkeyMarketplaceHHInstance.setOffer(priceInWEIForCallingTest28, tokenId, {from: fromAccount});
+  //await showActiveOfferForTokenID(tokenId);
+  await assertOfferDetailsForTokenID(tokenId, true, fromAccount, priceInETHTesting ); 
+}
+
+// expects call to check NFT sell offer to revert with specific error message. Has to become counting 'revert' still xxxx
+async function expectNoActiveOfferAndCount(tokenId) {
+  await expectRevert( monkeyMarketplaceHHInstance.getOffer(tokenId), 'No active offer for this tokenId.');       
 }
 
 // for testing/debugging: show the NFT array of an account
@@ -58,8 +91,8 @@ async function showAllNFTsWithOwnerAndGen() {
   }
 }
 
-// for testing/debugging: show offer for Token ID
-async function showOfferForTokenID(tokenId) {
+// for testing/debugging: shows active offer for Token ID, if one exists
+async function showActiveOfferForTokenID(tokenId) {
 
   let offerTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);        
 
@@ -77,25 +110,16 @@ async function showOfferForTokenID(tokenId) {
 
 }
 
-async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSeller, expectedPriceInETH ) {
+// for testing/debugging: show all Token IDs with active offer
+async function showingTokenIDsWithActiveOffer() {
+  let checkAllActiveOffersArray = await monkeyMarketplaceHHInstance.getAllTokenOnSale();
 
-  let expectedPriceInWEI = web3.utils.toWei(expectedPriceInETH);
-
-  let assertOfferTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);
-
-  let returnedTokenId = parseInt(assertOfferTestingResult.tokenId); 
-  let returnedActive = assertOfferTestingResult.active;
-  let returnedSeller = assertOfferTestingResult.seller;
-  let priceInWEITestingResult = parseInt(assertOfferTestingResult.price); 
-  let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
-  
-  assert.equal(tokenId, returnedTokenId);
-  assert.equal(expectedActive, returnedActive);
-  assert.equal(expectedSeller, returnedSeller);
-  assert.equal(expectedPriceInETH, priceInETHTestingResult);
-  assert.equal(expectedPriceInWEI, priceInWEITestingResult);
-
+  for (let checkOffersIndex = 0; checkOffersIndex < checkAllActiveOffersArray.length; checkOffersIndex++) {
+    console.log( 'Found active for Token ID: ' + parseInt(checkAllActiveOffersArray[checkOffersIndex]) );         
+  }
 }
+
+
 
 
 // Main contract Hardhat test with openzeppelin, Truffle and web3
@@ -626,28 +650,50 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       assert.equal(resultAcc4Test26, true);
     }) 
 
-    it('Test 27: accounts[2] should create 4 offers', async () => {    
+    it('Test 27: accounts[2] should create 4 offers, all gen0', async () => {    
 
       for (let test27Counter = 1; test27Counter <= 4; test27Counter++) {        
 
         let priceInETHTest27 = test27Counter.toString(); 
 
-        let priceInWEIForCallingTest27 = web3.utils.toWei(priceInETHTest27); // priceInETHTest27 * 1000000000000000000;
+        let priceInWEIForCallingTest27 = web3.utils.toWei(priceInETHTest27); 
 
         await monkeyMarketplaceHHInstance.setOffer(priceInWEIForCallingTest27, test27Counter, {from: accounts[2]});
 
-        await showOfferForTokenID(test27Counter);
+        //await showActiveOfferForTokenID(test27Counter);
 
-        await assertOfferDetailsForTokenID(test27Counter, true, accounts[2], priceInETHTest27 );
-
-        
+        await assertOfferDetailsForTokenID(test27Counter, true, accounts[2], priceInETHTest27 );        
       }
-
-      
-
      
     }) 
 
+    it('Test 28: accounts[4] should create 4 offers, 2x gen6 and 2x gen7', async () => {    
+
+      //await showArrayOfAccount(accounts[4]);
+
+      for (let test28Counter = 35; test28Counter <= 38; test28Counter++) {        
+
+        createOfferAndAssert (test28Counter, test28Counter, accounts[4]);        
+      }
+    }) 
+
+    
+
+    it('Test 29: accounts[2] should delete 1 active offer', async () => {  
+
+      await monkeyMarketplaceHHInstance.removeOffer(4, {from: accounts[2]});
+
+      await expectNoActiveOfferAndCount(4); 
+    }) 
+
+    it('Test 30: accounts[4] should delete 1 active offer', async () => {  
+
+      await monkeyMarketplaceHHInstance.removeOffer(35, {from: accounts[4]});
+
+      await expectNoActiveOfferAndCount(35); 
+
+      await showingTokenIDsWithActiveOffer();
+    }) 
     
     
 
