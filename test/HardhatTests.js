@@ -66,6 +66,7 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
+// showX
 // for testing/debugging: shows all accounts and their addresses
 // is querying the copied addresses in accountToAddressArray
 async function showAllAccounts(){
@@ -80,7 +81,7 @@ function findAccountForAddress(addressToLookup){
     if (accountToAddressArray[findInd] == addressToLookup) {
       return "accounts[" +`${findInd}`+ "]"
     } else if (addressToLookup== '0x0000000000000000000000000000000000000000' ) {
-      return "Zero address: 0x0000000000000000000000000000000000000000 => was burnt"      
+      return "Zero address: 0x0000000000000000000000000000000000000000 => i.e. it was burnt"      
     }       
   }  
 };
@@ -104,7 +105,7 @@ async function showArrayOfAccount(acc){
       convertedNumArr.push( convertedNrToPush ); 
     }
   }      
-  console.log(acc +' has this NFT array: ');
+  console.log(findAccountForAddress(acc)  +' has this NFT array: ');
   console.log(convertedNumArr);  
 }
 
@@ -128,18 +129,19 @@ async function showAllNFTsWithOwnerAndGen() {
 // for testing/debugging: shows active offer for Token ID, if one exists
 async function showActiveOfferForTokenID(tokenId) {
 
-  let offerTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);        
+  let offerTestingResult = await monkeyMarketplaceHHInstance.getOffer(tokenId);  
+  let offerTRIndex = parseInt(offerTestingResult.index);      
 
-  console.log('Offer Nr.: ' + tokenId + ' Token ID: ' + parseInt(offerTestingResult.tokenId));
-  console.log('Offer Nr.: ' + tokenId + ' Active: ' + offerTestingResult.active);
-  console.log('Offer Nr.: ' + tokenId + ' Index: ' + parseInt(offerTestingResult.index));
-  console.log('Offer Nr.: ' + tokenId + ' Seller: ' + offerTestingResult.seller);
+  console.log('Offer Nr.: ' + offerTRIndex + ' Token ID: ' + parseInt(offerTestingResult.tokenId));
+  console.log('Offer Nr.: ' + offerTRIndex + ' Active: ' + offerTestingResult.active);
+  console.log('Offer Nr.: ' + offerTRIndex + ' Index: ' + offerTRIndex);
+  console.log('Offer Nr.: ' + offerTRIndex + ' Seller: ' + findAccountForAddress(offerTestingResult.seller));
 
   let priceInWEITestingResult = parseInt(offerTestingResult.price); 
-  console.log('Offer Nr.: ' + tokenId + ' Price in WEI: ' + priceInWEITestingResult );  
+  console.log('Offer Nr.: ' + offerTRIndex + ' Price in WEI: ' + priceInWEITestingResult );  
 
   let priceInETHTestingResult = web3.utils.fromWei(priceInWEITestingResult.toString()); 
-  console.log('Offer Nr.: ' + tokenId + ' Price in ETH: ' + priceInETHTestingResult );  
+  console.log('Offer Nr.: ' + offerTRIndex + ' Price in ETH: ' + priceInETHTestingResult );  
   console.log('-----------------------------------');
 
 }
@@ -857,12 +859,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     
     
-    it('Test 36: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 46 active offers (Token IDs: 38,39,40,41) ', async () => {  
-
-      // Giving operator status 
-      giveMarketOperatorAndAssertAndCount(accounts[6]);
-      giveMarketOperatorAndAssertAndCount(accounts[7]);
-      
+    it('Test 36: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
+           
       await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});
       //showArrayOfAccount(accounts[6]);
 
@@ -872,27 +870,37 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       //await showingTokenIDsWithActiveOffer();
       await assertAmountOfActiveOffersAndCount(4);     
       
-      showAllNFTsWithOwnerAndGen();
+      //showAllNFTsWithOwnerAndGen();
     }) 
 
-    /*
-    it('Test 37: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 46 active offers (Token IDs: 38,39,40,41) ', async () => {  
+    
+    it('Test 37: accounts[6] creates 1 offer with decimal amount for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
 
       // Giving operator status 
-      giveMarketOperatorAndAssertAndCount(accounts[6]);
-      giveMarketOperatorAndAssertAndCount(accounts[7]);
+      giveMarketOperatorAndAssertAndCount(accounts[6]);   
       
-      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});
-      //showArrayOfAccount(accounts[6]);
-
-      await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[7], value: web3.utils.toWei('2')});
-      //showArrayOfAccount(accounts[7]);      
-
-      //await showingTokenIDsWithActiveOffer();
+      await createOfferAndAssert(2.456, 1, accounts[6]);
+      
+      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[8], value: web3.utils.toWei('2.456')});  
+      //showArrayOfAccount(accounts[8]);  
+      
       await assertAmountOfActiveOffersAndCount(4);
       
-    }) */
+    }) 
     
+    it('Test 37: accounts[7] creates 1 offer with decimal amount under 1 for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
+
+      // Giving operator status 
+      giveMarketOperatorAndAssertAndCount(accounts[7]);   
+      
+      await createOfferAndAssert(0.21, 2, accounts[7]);
+      
+      await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[8], value: web3.utils.toWei('0.21')});  
+      // showArrayOfAccount(accounts[8]);  
+      
+      await assertAmountOfActiveOffersAndCount(4);
+      
+    }) 
     
 
     
