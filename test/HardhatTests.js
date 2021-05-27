@@ -664,7 +664,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       assert.equal(resultAcc4Test26, true);
     }) 
 
-    it('Test 27: accounts[2] should create 4 offers, all gen0', async () => {    
+    it('Test 27: accounts[2] should create 4 offers, all gen0 (Token IDs: 1,2,3,4)', async () => {    
 
       for (let test27Counter = 1; test27Counter <= 4; test27Counter++) {        
 
@@ -681,7 +681,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
      
     }) 
 
-    it('Test 28: accounts[4] should create 4 offers, 2x gen6 and 2x gen7', async () => {    
+    it('Test 28: accounts[4] should create 4 offers, 2x gen6 (Token IDs: 35, 36) and 2x gen7 (Token IDs: 37, 38)', async () => {    
 
       //await showArrayOfAccount(accounts[4]);
 
@@ -693,7 +693,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     
 
-    it('Test 29: accounts[2] should delete 1 active offer (Token ID: 4), now 7 active offers should exist', async () => {  
+    it('Test 29: accounts[2] should delete 1 active offer (Token ID: 4), now 7 active offers should exist (Token IDs: 1,2,3 and 35,36,37,38) ', async () => {  
 
       await monkeyMarketplaceHHInstance.removeOffer(4, {from: accounts[2]});
 
@@ -702,7 +702,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await assertAmountOfActiveOffersAndCount(7);
     }) 
 
-    it('Test 30: accounts[4] should delete 1 active offer (Token ID: 35), now 6 active offers should exist', async () => {  
+    it('Test 30: accounts[4] should delete 1 active offer (Token ID: 35), now 6 active offers should exist (Token IDs: 1,2,3 and 36,37,38)', async () => {  
 
       await monkeyMarketplaceHHInstance.removeOffer(35, {from: accounts[4]});
 
@@ -712,6 +712,79 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
       await assertAmountOfActiveOffersAndCount(6);
     }) 
+
+    it('Test 31: accounts[5] should buy 3 NFTs (Token IDs: 1,2,3) from accounts[2], now 3 active offers should exist (Token IDs: 36,37,38)', async () => {  
+
+      
+      for (let buyCountT31 = 1; buyCountT31 <= 3; buyCountT31++) { 
+
+        let largeCountingNrT31 = buyCountT31.toString();
+        let t31priceToPayInWEI = web3.utils.toWei(largeCountingNrT31);
+        
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[4], value: t31priceToPayInWEI});
+      }
+      // await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(3);
+    }) 
+
+    it('Test 32: accounts[1] should buy 2 NFTs (Token IDs: 36, 37) from accounts[4], now 1 active offer should exist (Token ID: 38)', async () => {  
+
+      
+      for (let buyCountT32 = 36; buyCountT32 <= 37; buyCountT32++) { 
+
+        let largeCountingNrT32 = buyCountT32.toString();
+        let t32priceToPayInWEI = web3.utils.toWei(largeCountingNrT32);
+        
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
+      }
+      await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(1);
+    }) 
+
+    it('Test 33: accounts[1] (Token IDs: 36, 37) and accounts[5] (Token IDs: 1,2) should create offers for 4 NFTs, now 5 active offer should exist (Token ID: 1,2, 36, 37, 38)', async () => {  
+
+      
+      for (let buyCountT32 = 36; buyCountT32 <= 37; buyCountT32++) { 
+
+        let largeCountingNrT32 = buyCountT32.toString();
+        let t32priceToPayInWEI = web3.utils.toWei(largeCountingNrT32);
+        
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
+      }
+      await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(1);
+    }) 
+
+    it('Test 34: accounts[4] should buy 2 NFTs (Token IDs: 36, 37) from accounts[1], now 1 active offer should exist (Token ID: 38)', async () => {  
+
+      
+      for (let buyCountT32 = 36; buyCountT32 <= 37; buyCountT32++) { 
+
+        let largeCountingNrT32 = buyCountT32.toString();
+        let t32priceToPayInWEI = web3.utils.toWei(largeCountingNrT32);
+        
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
+      }
+      await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(1);
+    }) 
+
+    it('Test 35: accounts[4] should buy 2 NFTs (Token IDs: 36, 37) from accounts[1],  now xxxxx active offer should exist (Token ID: 38)', async () => {  
+
+      
+      for (let buyCountT32 = 36; buyCountT32 <= 37; buyCountT32++) { 
+
+        let largeCountingNrT32 = buyCountT32.toString();
+        let t32priceToPayInWEI = web3.utils.toWei(largeCountingNrT32);
+        
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
+      }
+      await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(1);
+    }) 
+    
+    
+
     
     
 
