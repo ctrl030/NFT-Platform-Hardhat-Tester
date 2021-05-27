@@ -5,6 +5,11 @@ const { expectRevert, expectEvent } = require('@openzeppelin/test-helpers');
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
 
+// this array will receive the generated Hardhat addresses,
+// i.e. accountToAddressArray[0] will hold the address of accounts[0]
+// can then be used to facilitate console.log
+let accountToAddressArray = [];
+
 // asserting a specific amount of NFTs for an account
 async function assertAmountofNFTs(acc, amount){
 // checking how many NFTs are owned by account 'acc', should be 'amount' 
@@ -61,6 +66,25 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
+// for testing/debugging: shows all accounts and their addresses
+// is querying the copied addresses in accountToAddressArray
+async function showAllAccounts(){
+  for (let ind = 0; ind < accountToAddressArray.length; ind++) {
+    console.log("accounts[" +`${ind}`+ "] is: " + accountToAddressArray[ind])
+  }  
+};
+
+// for testing/debugging: looking up the accounts[] variable for an address
+function findAccountForAddress(addressToLookup){
+  for (let findInd = 0; findInd < accountToAddressArray.length; findInd++) {
+    if (accountToAddressArray[findInd] == addressToLookup) {
+      return "accounts[" +`${findInd}`+ "]"
+    } else if (addressToLookup== '0x0000000000000000000000000000000000000000' ) {
+      return "Zero address: 0x0000000000000000000000000000000000000000 => was burnt"      
+    }       
+  }  
+};
+
 // for testing/debugging: show the NFT array of an account
 async function showArrayOfAccount(acc){
   // outer array holds 1 element: the inner array with BN elements
@@ -87,14 +111,15 @@ async function showArrayOfAccount(acc){
 // for testing/debugging: show owner and generation for an NFT
 async function showOwnerAndGeneration(tokenIdToTest){
   let testOwnAndGenDetails  = await monkeyContractHHInstance.getMonkeyDetails(tokenIdToTest); 
-  console.log('NFT with Token ID: ' + tokenIdToTest)    
-  console.log(testOwnAndGenDetails.owner); 
-  console.log(parseInt(testOwnAndGenDetails.generation) );
+  console.log('NFT with Token ID: ' + tokenIdToTest);    
+  console.log( 'is owned by: ' + findAccountForAddress(testOwnAndGenDetails.owner)); 
+  console.log( 'and is gen' + parseInt(testOwnAndGenDetails.generation) );
+  console.log('-------------------');
 }
 
 // for testing/debugging: show owner and generation for all NFTs
 async function showAllNFTsWithOwnerAndGen() {
-  let totalAmount = await monkeyContractHHInstance.totalSupply()
+  let totalAmount = await monkeyContractHHInstance.totalSupply();
   for (let showAllInd = 0; showAllInd < totalAmount; showAllInd++) {          
     showOwnerAndGeneration(showAllInd);
   }
@@ -148,15 +173,14 @@ async function assertAmountOfActiveOffersAndCount(expectedAmount) {
 // Main contract Hardhat test with openzeppelin, Truffle and web3
 contract('MonkeyContract with HH', accounts => {
 
-  // for testing/debugging: show all accounts and their addresses
-  async function showAllAccounts(){
-    for (let ind = 0; ind <= 10; ind++) {
-      console.log("accounts[" +`${ind}`+ "] is: " + accounts[ind])
-    }  
-  };
-
   // deploying the main smart contract: MonkeyContract
-  before(async()=> {
+  before(async()=> {    
+
+    // making a copy of the account addresses to accountToAddressArray
+    for (let accIndex = 0; accIndex < accounts.length ; accIndex++) {
+      accountToAddressArray[accIndex] = accounts[accIndex];    
+    }
+
     // deploying the main smart contract: MonkeyContract
     monkeyContractHHInstance = await MonkeyContract.new();    
     // console.log('MonkeyContract deployed');   
@@ -633,13 +657,6 @@ contract('MonkeyContract with HH', accounts => {
 // Market contract Hardhat test with openzeppelin, Truffle and web3
 contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
-  // for testing/debugging: show all accounts and their addresses
-  async function showAllAccounts(){
-    for (let ind = 0; ind <= 10; ind++) {
-      console.log("accounts[" +`${ind}`+ "] is: " + accounts[ind])
-    }  
-  }
-
   // Before running the tests, deploying a new MonkeyMarketplace 
   before(async()=> {
     // deploying the marketplace smart contract: MonkeyMarketplace and getting the address of the MonkeyContract for the marketplace constructor
@@ -776,11 +793,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     
     it('Test 33: accounts[3] should breed NFTs (IDs:25,26) creating 3 gen2 NFTs (Token IDs:39,40,41) create offers, now 4 active offers (Token ID: 38,39,40,41)', async () => {  
       
-
       // breeding NFTs with Token IDs 25 and 26 three times, creating gen2 Token IDs 39,40,41       
       for (let index22B1 = 1; index22B1 <= 3; index22B1++) {
-        await monkeyContractHHInstance.breed(25, 26, {from: accounts[3]}); 
-        
+        await monkeyContractHHInstance.breed(25, 26, {from: accounts[3]});         
       }        
 
       // Giving operator status 
@@ -855,9 +870,28 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       //showArrayOfAccount(accounts[7]);      
 
       //await showingTokenIDsWithActiveOffer();
-      await assertAmountOfActiveOffersAndCount(4);
-      showAllNFTsWithOwnerAndGen()
+      await assertAmountOfActiveOffersAndCount(4);     
+      
+      showAllNFTsWithOwnerAndGen();
     }) 
+
+    /*
+    it('Test 37: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 46 active offers (Token IDs: 38,39,40,41) ', async () => {  
+
+      // Giving operator status 
+      giveMarketOperatorAndAssertAndCount(accounts[6]);
+      giveMarketOperatorAndAssertAndCount(accounts[7]);
+      
+      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});
+      //showArrayOfAccount(accounts[6]);
+
+      await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[7], value: web3.utils.toWei('2')});
+      //showArrayOfAccount(accounts[7]);      
+
+      //await showingTokenIDsWithActiveOffer();
+      await assertAmountOfActiveOffersAndCount(4);
+      
+    }) */
     
     
 
