@@ -185,19 +185,16 @@ contract('MonkeyContract with HH', accounts => {
 
     // deploying the main smart contract: MonkeyContract
     monkeyContractHHInstance = await MonkeyContract.new();    
-    // console.log('MonkeyContract deployed');   
+    
   });
 
   describe('Testing correct deployment', () => {     
 
     // 1
     it('Test 1: accounts[0] should be deployer of main contract', async () => {  
-      //console.log('monkeyContractHHInstance.owner: ');
-      //console.log(monkeyContractHHInstance);
+      
       const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()
-      //console.log(monkeyContractHHInstanceOwner);
-      //console.log('accounts[0]');
-      //console.log(accounts[0]);
+      
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
     }) 
 
@@ -456,9 +453,6 @@ contract('MonkeyContract with HH', accounts => {
 
       const testingMonkeyNr7 = await monkeyContractHHInstance.getMonkeyDetails(7);
 
-      //console.log('accounts[2] is', accounts[2]) 
-      //console.log('testingMonkeyNr7.owner is', testingMonkeyNr7.owner);
-
       assert.equal(testingMonkeyNr7.owner, accounts[2]);
 
     });
@@ -589,14 +583,8 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr15 = await monkeyContractHHInstance.getMonkeyDetails(15);        
       assert.equal(testingMonkeyNr15.owner, accounts[4]);  
 
-      //showArrayOfAccount(accounts[4]);
-
       // accounts[4] should have 4 NFTs at this point: 5, 6, 14, 15
-      assertAmountofNFTs(accounts[4], 4)
-
-      // repeat procedure for accounts[3]    
-      
-      //showArrayOfAccount(accounts[3]);
+      assertAmountofNFTs(accounts[4], 4)      
 
       // checking how many NFTs are owned by accounts[3], should be 12 (2 gen0 have been sent, also Token IDs 14 and 15, i.e. 12 left of 14 bred)
       assertAmountofNFTs(accounts[3], 12)
@@ -732,14 +720,14 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     it('Test 28: accounts[4] should create 4 offers, 2x gen6 (Token IDs: 35, 36) and 2x gen7 (Token IDs: 37, 38)', async () => {    
 
-      //await showArrayOfAccount(accounts[4]);
+      
 
       for (let test28Counter = 35; test28Counter <= 38; test28Counter++) {        
 
         await createOfferAndAssert (test28Counter, test28Counter, accounts[4]); 
         
       }
-      //await showingTokenIDsWithActiveOffer();
+      
     }) 
 
     
@@ -757,9 +745,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
       await monkeyMarketplaceHHInstance.removeOffer(35, {from: accounts[4]});
 
-      await expectNoActiveOfferAndCount(35); 
-
-      //await showingTokenIDsWithActiveOffer();
+      await expectNoActiveOfferAndCount(35);       
 
       await assertAmountOfActiveOffersAndCount(6);
     }) 
@@ -788,10 +774,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
       }
-      //await showingTokenIDsWithActiveOffer();
+      
       await assertAmountOfActiveOffersAndCount(1);
     }) 
-
     
     it('Test 33: accounts[3] should breed NFTs (IDs:25,26) creating 3 gen2 NFTs (Token IDs:39,40,41) create offers, now 4 active offers (Token ID: 38,39,40,41)', async () => {  
       
@@ -810,15 +795,11 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         
       }
      
-      //await showingTokenIDsWithActiveOffer();  
-
-      //await showingTokenIDsWithActiveOffer();
+      
       await assertAmountOfActiveOffersAndCount(4);
       
-      //console.log('end');
-      //await showArrayOfAccount(accounts[3]);
+      
     }) 
-
     
     it('Test 34: accounts[1] should create 2 offers (Token IDs:36,37) and accounts[5] 2 offers (Token IDs:1,2), now 8 active offers (Token IDs: 1,2,36,37,38,39,40,41)', async () => {  
       
@@ -838,10 +819,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         await createOfferAndAssert (test34Counter1, test34Counter1, accounts[5]); 
       }
     
-      //await showingTokenIDsWithActiveOffer();
+      
       await assertAmountOfActiveOffersAndCount(8);
     }) 
-
     
     it('Test 35: accounts[4] should buy back 2 NFTs (Token IDs: 36, 37) from accounts[1], now 6 active offers should exist (Token IDs: 1,2,38,39,40,41)', async () => {  
 
@@ -853,26 +833,20 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT35, {from: accounts[4], value: t35priceToPayInWEI});
       }
-      //await showingTokenIDsWithActiveOffer();
+      
       await assertAmountOfActiveOffersAndCount(6);
-    }) 
-
-    
+    })     
     
     it('Test 36: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
            
-      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});
-      //showArrayOfAccount(accounts[6]);
+      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});      
 
-      await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[7], value: web3.utils.toWei('2')});
-      //showArrayOfAccount(accounts[7]);      
-
-      //await showingTokenIDsWithActiveOffer();
+      await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[7], value: web3.utils.toWei('2')});   
+      
       await assertAmountOfActiveOffersAndCount(4);     
       
       //showAllNFTsWithOwnerAndGen();
     }) 
-
     
     it('Test 37: accounts[6] creates 1 offer with decimal amount for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
 
@@ -881,14 +855,13 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       
       await createOfferAndAssert(2.456, 1, accounts[6]);
       
-      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[8], value: web3.utils.toWei('2.456')});  
-      //showArrayOfAccount(accounts[8]);  
+      await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[8], value: web3.utils.toWei('2.456')});         
       
       await assertAmountOfActiveOffersAndCount(4);
       
     }) 
     
-    it('Test 37: accounts[7] creates 1 offer with decimal amount under 1 for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
+    it('Test 38: accounts[7] creates 1 offer with decimal amount under 1 for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
 
       // Giving operator status 
       giveMarketOperatorAndAssertAndCount(accounts[7]);   
