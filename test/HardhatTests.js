@@ -49,8 +49,7 @@ async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSel
 async function createOfferAndAssert (priceInETH, tokenId, fromAccount) {
   let priceInETHTesting = priceInETH.toString(); 
   let priceInWEIForCallingTest28 = web3.utils.toWei(priceInETHTesting); 
-  await monkeyMarketplaceHHInstance.setOffer(priceInWEIForCallingTest28, tokenId, {from: fromAccount});
-  //await showActiveOfferForTokenID(tokenId);
+  await monkeyMarketplaceHHInstance.setOffer(priceInWEIForCallingTest28, tokenId, {from: fromAccount});  
   await assertOfferDetailsForTokenID(tokenId, true, fromAccount, priceInETHTesting ); 
 }
 
@@ -190,7 +189,7 @@ contract('MonkeyContract with HH', accounts => {
 
   describe('Testing correct deployment', () => {     
 
-    // 1
+    
     it('Test 1: accounts[0] should be deployer of main contract', async () => {  
       
       const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()
@@ -198,18 +197,18 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
     }) 
 
-    // 2
+    
     it('Test 2: _name should be "Crypto Monkeys"', async () => {  
       // console.log(monkeyContractHHInstance._name)
       assert.equal(await monkeyContractHHInstance.name(), 'Crypto Monkeys')        
     })
 
-    // 3
+    
     it('Test 3: _symbol should be "MONKEY"', async () => {
       assert.equal(await monkeyContractHHInstance.symbol(), 'MONKEY')      
     })              
     
-    // 4
+    
     it('Test 4: GEN0_Limit should be 12', async() => {  
       //console.log('Console.log is available here')
       const limit = await monkeyContractHHInstance.GEN0_Limit();
@@ -217,7 +216,7 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(limit, 12); 
     });
 
-    // 5 
+     
     it('Test 5: There should be one Zero Monkey in the array after deployment', async () => {  
       const totalSupplyAfterDeployment = await monkeyContractHHInstance.showTotalSupply();
       //const zeroMonkeytest1 = await monkeyContractHHInstance.getMonkeyDetails(0);
@@ -225,14 +224,14 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(totalSupplyAfterDeployment, 1);
     });
     
-    // 6
+    
     it('Test 6: Zero Monkey should be owned by zero address', async () => {  
       const zeroMonkeytest2 = await monkeyContractHHInstance.getMonkeyDetails(0);
       //console.log(zeroMonkeytest2.owner);
       assert.equal(zeroMonkeytest2.owner, 0x0000000000000000000000000000000000000000)  
     });
 
-    // 7
+    
     it('Test 7: Zero Monkey should be over 9000', async () => { 
       const zeroMonkeytest3 = await monkeyContractHHInstance.getMonkeyDetails(0);
       const zeroGenesNumber = zeroMonkeytest3.genes.toNumber();
@@ -244,7 +243,7 @@ contract('MonkeyContract with HH', accounts => {
 
   describe('Testing main contract: NFT creation and transfers', () => {      
 
-    // 8
+    
     it('Test 8: accounts[0] should create 9 gen0 monkeys with DNA matching their index/tokenId', async() => {  
          
       // this loop will create 9 gen0 NFTs, each with a DNA string consisting of repeated, concatted NFT tokenId
@@ -253,13 +252,11 @@ contract('MonkeyContract with HH', accounts => {
       for (let i = 1; i < 10; i++) {
         
         const concattedIndexes = `${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}` 
-        // console.log(concattedIndexes);
         
-        const truffleReceipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});
-        // console.log(truffleReceipt);
+        
+        const truffleReceipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});        
         expectEvent(truffleReceipt, 'MonkeyCreated', { genes: `${concattedIndexes}` });
-
-        // console.log(index);  
+        
         const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(i);
         const genesTested = parseInt(genesTestedDetails.genes);
         const compareConcats = parseInt(concattedIndexes); 
@@ -267,8 +264,7 @@ contract('MonkeyContract with HH', accounts => {
         
         // checking how many NFTs are owned by accounts[0] after each loop
         const prepAmountNFTsForAccounts0 = await monkeyContractHHInstance.balanceOf(accounts[0]);
-        const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;
-        //console.log(amountNFTsForAccounts0);
+        const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;        
         assert.equal(amountNFTsForAccounts0, i)
       }
 
@@ -277,7 +273,7 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(totalSupplyAfterCreating10, 10)  
     });
 
-    // 9
+    
     it('Test 9: accounts[0] should create 2 additional gen0 monkeys, bringing totalSupply to 12, of which 11 gen0', async() => { 
 
       // this loop will create 2 gen0 NFTs, each with a DNA string of 1111111111111111
@@ -304,69 +300,48 @@ contract('MonkeyContract with HH', accounts => {
       const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
       assert.equal(parseInt(totalSupplyAfterCreating12), 12);    
     });
-
-    // 10
+    
     it('Test 10: accounts[1] should try to create NFT, but is not authorized, should fail', async() => {             
         
       await expectRevert.unspecified(
         monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[1]})
-      );
-      
-      /*
-        const totalSupplynow2 = await monkeyContractHHInstance.totalSupply(); 
-        console.log(totalSupplynow2.toNumber());
-      */      
+      );      
+       
     });
-
-    // 11
+    
     it('Test 11: accounts[0] should create NFT, filling gen0 limit (of 12), bringing totalSupply to 13 (incl. Zero Monkey)', async() => {         
       await monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]})      
       
       // checking how many NFTs are owned by accounts[0], should be 12
       const prepAmountNFTsForAccounts0 = await monkeyContractHHInstance.balanceOf(accounts[0]);
       const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;
-      //console.log(amountNFTsForAccounts0);
+      
       assert.equal(amountNFTsForAccounts0, 12)
 
-      const totalSupplynow2 = await monkeyContractHHInstance.showTotalSupply();
-      //const zeroMonkeytest1 = await monkeyContractHHInstance.getMonkeyDetails(0);
-      //console.log(zeroMonkeytest1);
+      const totalSupplynow2 = await monkeyContractHHInstance.showTotalSupply();    
       assert.equal(parseInt(totalSupplynow2), 13);
 
-      /*
-        const totalSupplynow2 = await monkeyContractHHInstance.totalSupply(); 
-        console.log(totalSupplynow2.toNumber());
-      */      
     });
     
-    // 12
     it('Test 12: Limit is reached, creating another NFT should fail', async() => {             
         
       await expectRevert.unspecified(
         monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]})
-      );
+      );      
       
-      /*
-        const totalSupplynow2 = await monkeyContractHHInstance.totalSupply(); 
-        console.log(totalSupplynow2.toNumber());
-      */      
     });
-
-    // 13
+    
     it('Test 13: accounts[0] should give accounts[1] operator status', async() => {  
       
       // Giving operator status 
       await monkeyContractHHInstance.setApprovalForAll(accounts[1], true, {from: accounts[0]});
 
       const operatorGivenApprovalTesting = await monkeyContractHHInstance.isApprovedForAll(accounts[0], accounts[1]);
-      
-      // console.log('operator status for accounts[1] is:', operatorGivenApprovalTesting);
-  
+       
       assert.equal(operatorGivenApprovalTesting, true);
      
     });
 
-    // 14
     it('Test 14: accounts[0] should take operator status away from accounts[1]', async() => {  
       await monkeyContractHHInstance.setApprovalForAll(accounts[1], false, {from: accounts[0]});
       
@@ -377,20 +352,16 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(operatorTakenApprovalTesting, false);
     });
 
-    // 15
     it('Test 15: accounts[0] should give accounts[1] operator status again', async() => {  
 
       // Giving operator status 
       await monkeyContractHHInstance.setApprovalForAll(accounts[1], true, {from: accounts[0]});
 
       const operatorGivenApprovalTesting = await monkeyContractHHInstance.isApprovedForAll(accounts[0], accounts[1]);
-      
-      // console.log('operator status for accounts[1] is:', operatorGivenApprovalTesting);
-  
+        
       assert.equal(operatorGivenApprovalTesting, true);     
     });
 
-    // 16
     it('Test 16: as operator, accounts[1] should use transferFrom to move 5 NFTs with Token IDs 1-5 from accounts[0] to accounts[2]', async() => {  
       
       for (let index = 1; index <= 5; index++) {
@@ -405,7 +376,6 @@ contract('MonkeyContract with HH', accounts => {
       
     });
 
-    // 16A
     it('Test 16A: as operator, accounts[1] should use transferFrom to take 7 NFTs with Token IDs 6-12 from accounts[0]', async() => {  
       
       for (let index = 6; index <= 12; index++) {
@@ -420,28 +390,17 @@ contract('MonkeyContract with HH', accounts => {
       
     });
 
-
-
-    // 17
     it('Test 17: accounts[1] should give exclusive allowance for the NFT with Token ID 7 to accounts[2]', async() => {  
       const receipt = await monkeyContractHHInstance.approve(accounts[2], 7, {from: accounts[1]});
-      // console.log(receipt);
-      //expectEvent(receipt, 'Approval', { genes: `${concattedIndexes}` });
       const testingMonkeyNr7 = await monkeyContractHHInstance.getMonkeyDetails(7);
-
-      //console.log('Test 17: accounts[2] is', accounts[2]) 
-      //console.log('Test 17: testingMonkeyNr7.approvedAddress is', testingMonkeyNr7.approvedAddress);
 
       assert.equal(testingMonkeyNr7.approvedAddress, accounts[2]);
 
     });
 
-    // 18
     it('Test 18: getApproved should confirm exclusive allowance for NFT with Token ID 7', async() => { 
 
       const testingAllowedAddressForMonkeyId7 = await monkeyContractHHInstance.getApproved(7);
-
-      //console.log('approved for NFT with tokenID 7 is', testingAllowedAddressForMonkeyId7) 
 
       assert.equal(testingAllowedAddressForMonkeyId7, accounts[2]);
 
