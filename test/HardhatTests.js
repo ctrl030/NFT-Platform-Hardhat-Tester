@@ -232,9 +232,8 @@ contract('MonkeyContract with HH', accounts => {
     
     
     it('Test 6: Zero Monkey should be owned by zero address', async () => {  
-      const zeroMonkeytest2 = await monkeyContractHHInstance.getMonkeyDetails(0);
-      //console.log(zeroMonkeytest2.owner);
-      assert.equal(zeroMonkeytest2.owner, 0x0000000000000000000000000000000000000000)  
+      const zeroMonkeytest2 = await monkeyContractHHInstance.ownerOf(0);      
+      assert.equal(zeroMonkeytest2, 0x0000000000000000000000000000000000000000)  
     });
 
     
@@ -368,9 +367,19 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(operatorGivenApprovalTesting, true);     
     });
 
-    it('Test 16: as operator, accounts[1] should use transferFrom to move 5 NFTs with Token IDs 1-5 from accounts[0] to accounts[2]', async() => {  
+    it('Test 15A: accounts[0] should use safeTransferFrom with sending data to move Token ID 1 from itself to accounts[2]', async() => {  
       
-      for (let index = 1; index <= 5; index++) {
+      await monkeyContractHHInstance.safeTransferFrom(accounts[0], accounts[2], 1, '0xa1234');      
+
+      const testingMonkey = await monkeyContractHHInstance.getMonkeyDetails(1);
+      
+      assert.equal(testingMonkey.owner, accounts[2]);      
+    });
+
+
+    it('Test 16: as operator, accounts[1] should use transferFrom to move 4 NFTs with Token IDs 2-5 from accounts[0] to accounts[2]', async() => {  
+      
+      for (let index = 2; index <= 5; index++) {
         await monkeyContractHHInstance.transferFrom(accounts[0], accounts[2], `${index}`, { 
           from: accounts[1],
         });
@@ -434,7 +443,7 @@ contract('MonkeyContract with HH', accounts => {
 
     });
     
-    // 21 is skipped
+    // 21 is skipped, 15A does a simpler version, via default call being from accounts[0], i.e. needing 1 less argument
     // might be due to hardhat, truffle, etc being so new
     // accepts 4 arguments (either without data or targeting an instance with predefined {from: accounts[PREDEFINED_ARRAY_INDEX]})
     // but when given 5 (i.e.  with data plus custom defined account in contract call) throws and says: "Error: Invalid number of parameters for "safeTransferFrom". Got 5 expected 3!"

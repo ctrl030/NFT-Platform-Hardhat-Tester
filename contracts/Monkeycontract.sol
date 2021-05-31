@@ -153,11 +153,9 @@ contract MonkeyContract is IERC721, Ownable {
         return _monkeyContractAddress;
     }    
 
-
     function supportsInterface (bytes4 _interfaceId) external view returns (bool){
         return (_interfaceId == _INTERFACE_ID_ERC721 || _interfaceId == _INTERFACE_ID_ERC165);
     }
-
 
     function breed(uint256 _parent1Id, uint256 _parent2Id) public returns (uint256) {
 
@@ -295,6 +293,12 @@ contract MonkeyContract is IERC721, Ownable {
     function findMonkeyIdsOfAddress(address sender) public view returns (uint256[] memory) {  
         return _owners2tokenIdArrayMapping[sender];
     }
+
+    // gives back the position of a certain NFT in their owner's array _owners2tokenIdArrayMapping    
+    function findNFTposition(address owner, uint256 tokenId ) public view returns (uint256) {  
+        return MonkeyIdPositionsMapping[owner][tokenId];
+    }
+
 
     // used for creating gen0 monkeys 
     function createGen0Monkey(uint256 _genes) public onlyOwner {
