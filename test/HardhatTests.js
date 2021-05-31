@@ -65,7 +65,67 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
-// showX
+// should be called passing amount and an spreading array of expected tokenId, for ex.:
+async function assertPositionOfNFTAndArray(ownerAccount, tokenId){
+
+  // getting the owner's array of NFTs (without 0 entries): _owners2tokenIdArrayMapping
+  let arrayOfFoundNFTs = await getNFTArrayOfAccount(ownerAccount);
+  // array to add found tokenIds to
+  let controlArray = []; 
+
+  // looping for every NFT found for this address in the _owners2tokenIdArrayMapping 
+  for (let findInde = 0; findInde < arrayOfFoundNFTs.length; findInde++) {    
+    const tokenIdToLookUp = arrayOfFoundNFTs[findInde];
+
+    console.log('Looking up Token ID: ', tokenIdToLookUp);
+
+    // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
+    const positionFoundBN = await monkeyContractHHInstance.findNFTposition(ownerAccount, tokenIdToLookUp);
+    const positionFound = parseInt(positionFoundBN);
+
+    console.log('positionFound: ', positionFound);
+
+    // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
+    const tokenFound = arrayOfFoundNFTs[positionFound];
+
+    // also pushing the found tokenId to a controlArray
+    controlArray.push(tokenFound);
+
+    assert.equal(tokenFound, tokenIdToLookUp);
+  }
+  console.log('controlArray: ');
+  console.log(controlArray);
+  assert.deepEqual(arrayOfFoundNFTs, controlArray);
+
+}
+
+
+async function getNFTArrayOfAccount(acc){
+  // outer array holds 1 element: the inner array with BN elements
+  const bigNrAccOutArr = [];
+  bigNrAccOutArr.push(await monkeyContractHHInstance.findMonkeyIdsOfAddress(acc));
+
+  // inner array holds BN elements
+  const bigNrAccInArr = bigNrAccOutArr[0];    
+  const convertedNumArr = [];
+
+  // converting BN to numbers and pushing to array convertedNumArr
+  for (let testC = 0; testC < bigNrAccInArr.length; testC++) {
+                    
+    if (bigNrAccInArr[testC] != 0) {          
+      const bigNrToConvert = bigNrAccInArr[testC];
+      const convertedNrToPush = parseInt(bigNrToConvert);
+      convertedNumArr.push( convertedNrToPush ); 
+    }
+  }      
+  console.log(findAccountForAddress(acc)  +' has this NFT array: ');
+  console.log(convertedNumArr);  
+
+  return convertedNumArr;
+}
+
+// show X - functions to console.log
+
 // for testing/debugging: shows all accounts and their addresses
 // is querying the copied addresses in accountToAddressArray
 async function showAllAccounts(){
@@ -764,6 +824,14 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[8], value: web3.utils.toWei('0.21')});  
       // showArrayOfAccount(accounts[8]);  
       await assertAmountOfActiveOffersAndCount(4);
+
+      
+      await assertPositionOfNFTAndArray(accounts[8], 1);
+      /*
+      expectedIDs = 2;
+      // assertPositionOfNFTAndArray(accounts[1], ...expectedIDs);
+      await assertPositionOfNFTAndArray(accounts[8], expectedIDs);*/
+
     }) 
 
 
