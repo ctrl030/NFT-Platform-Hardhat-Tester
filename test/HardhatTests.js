@@ -65,7 +65,6 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
-
   
 
 // controls MonkeyIdPositionsMapping by comparing it's results to _owners2tokenIdArrayMapping
@@ -74,42 +73,94 @@ async function assertPositionsOfAllNFTs(){
 
   // this many NFTs exist
   const totalSupplyAmount = parseInt(await monkeyContractHHInstance.showTotalSupply()) ;  
-  console.log('This many NFTs exist: ', totalSupplyAmount);
+  //console.log('This many NFTs exist: ', totalSupplyAmount);
   
   // skipping zero monkey xxxxx put in test again for that, above
   // looping through all NFTs that exist 
   for (let assertAllIndex = 1; assertAllIndex < totalSupplyAmount; assertAllIndex++) {
 
-    console.log('Looking up NFT with Token ID:', assertAllIndex);
+    //console.log('Looking up NFT with Token ID:', assertAllIndex);
     
     // looking up owner
     let ownerAccount = await monkeyContractHHInstance.ownerOf(assertAllIndex);
     const readableOwner = findAccountForAddress(ownerAccount);
-    console.log('NFT with Token ID:', assertAllIndex, ' is owned by', readableOwner);
+    //console.log('NFT with Token ID:', assertAllIndex, ' is owned by', readableOwner);
     
     // creating array to compare index to
     // using _owners2tokenIdArrayMapping as control variable to compare against
     // getting the owner's array of NFTs (without 0 entries, and converted to normal numbers) from: _owners2tokenIdArrayMapping
-    let arrayOfFoundNFTs = await getNFTArrayOfAccount(ownerAccount);
-    console.log('This is the array of NFTs of', readableOwner,':');
-    console.log(arrayOfFoundNFTs);    
+    let arrayOfFoundNFTs = await getNFTArrayOfAccount(ownerAccount);    
+    //showArrayOfAccount(ownerAccount);
      
     // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
     const positionFoundBN = await monkeyContractHHInstance.findNFTposition(ownerAccount, assertAllIndex);
     const positionFound = parseInt(positionFoundBN);
 
-    console.log('Token ID', assertAllIndex, 'should be found in this position:', positionFound);
+    //console.log('Token ID', assertAllIndex, 'should be found in this position:', positionFound);
 
     // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
     const tokenFound = arrayOfFoundNFTs[positionFound];
     
+    //console.log('positionFound:');
+    //console.log(positionFound);
+
+    //console.log('tokenFound:');
+    //console.log(tokenFound);
+    
     assert.equal(tokenFound, assertAllIndex);    
-    console.log('Token ID', assertAllIndex, 'was in the correct position');
-    console.log('-------------------------');
+    //console.log('Token ID', assertAllIndex, 'was in the correct position');
+    //console.log('-------------------------');
 
   }
 
 }
+
+
+
+async function checkAllNFTsInAllFourNFTTrackers (){
+
+  /*xxxxxxxx
+  - get all nfts that exist
+  - loop through them
+  - get their details, and check all thats possible, gen, owner
+  - look up ownership in all 4 trackers
+  - 
+
+
+  1
+  _numberOfNFTsOfAddressMapping
+  assertAmountofNFTs(accToCheck, expectedAmount)
+  
+
+  2
+  _monkeyIdsAndTheirOwnersMapping
+  checkOwnerMapping(tokenIdTocheck, expectedOwnerAcc)
+  
+
+  3
+  _owners2tokenIdArrayMapping
+
+  // returns array of Token IDs, DOES NOT assert YET  
+  getNFTArrayOfAccount(acc)
+
+  // build a function that accepts an array and deepequals that to their array
+  
+
+  4
+  MonkeyIdPositionsMapping
+  assertPositionsOfAllNFTs
+  assertPositionOfSpecificNFT
+
+  */
+
+  
+
+  
+  
+
+}
+
+
 
 async function assertPositionOfSpecificNFT(tokenIdtoCheck){
 
@@ -156,40 +207,17 @@ async function getNFTArrayOfAccount(acc){
   const convertedNumArr = [];
 
   // converting BN to numbers and pushing to array convertedNumArr
-  for (let testC = 0; testC < bigNrAccInArr.length; testC++) {
-                    
-    if (bigNrAccInArr[testC] != 0) {          
-      const bigNrToConvert = bigNrAccInArr[testC];
-      const convertedNrToPush = parseInt(bigNrToConvert);
-      convertedNumArr.push( convertedNrToPush ); 
-    }
+  for (let testC = 0; testC < bigNrAccInArr.length; testC++) {                   
+           
+    const bigNrToConvert = bigNrAccInArr[testC];
+    const convertedNrToPush = parseInt(bigNrToConvert);
+    convertedNumArr.push( convertedNrToPush ); 
+    
   }      
   //console.log(findAccountForAddress(acc)  +' has this NFT array: ');
   //console.log(convertedNumArr);  
 
   return convertedNumArr;
-}
-
-async function checkAllNFTsInAllFourNFTTrackers (){
-
-  /*xxxxxxxx
-  - get all nfts that exist
-  - loop through them
-  - get their details, and check all thats possible, gen, owner
-  - look up their owner
-  - 
-  */
-
-  assertAmountofNFTs(accToCheck, expectedAmount)
-
-  // returns array of Token IDs, does not assert
-  getNFTArrayOfAccount(acc)
-
-  
-  assertPositionOfNFTAndArray()
-
-  checkOwnerMapping(tokenIdTocheck, expectedOwnerAcc)
-
 }
 
 
@@ -224,22 +252,24 @@ function findAccountForAddress(addressToLookup){
 
 // for testing/debugging: show the NFT array of an account
 async function showArrayOfAccount(acc){
-  // outer array holds 1 element: the inner array with BN elements
+  
+  // this will receive the incoming array
   const bigNrAccOutArr = [];
+
+  // outer array holds 1 element, at index 0: the inner array with BN elements
   bigNrAccOutArr.push(await monkeyContractHHInstance.findMonkeyIdsOfAddress(acc));
 
-  // inner array holds BN elements
+  // inner array holds BN elements at index 0
   const bigNrAccInArr = bigNrAccOutArr[0];    
   const convertedNumArr = [];
 
   // converting BN to numbers and pushing to array convertedNumArr
-  for (let testC = 0; testC < bigNrAccInArr.length; testC++) {
-                    
-    if (bigNrAccInArr[testC] != 0) {          
-      const bigNrToConvert = bigNrAccInArr[testC];
-      const convertedNrToPush = parseInt(bigNrToConvert);
-      convertedNumArr.push( convertedNrToPush ); 
-    }
+  for (let testC = 0; testC < bigNrAccInArr.length; testC++) {                   
+          
+    const bigNrToConvert = bigNrAccInArr[testC];
+    const convertedNrToPush = parseInt(bigNrToConvert);
+    convertedNumArr.push( convertedNrToPush ); 
+    
   }      
   console.log(findAccountForAddress(acc)  +' has this NFT array: ');
   console.log(convertedNumArr);  
@@ -514,7 +544,7 @@ contract('MonkeyContract with HH', accounts => {
       
       assert.equal(testingMonkey.owner, accounts[2]);      
 
-      assertPositionsOfAllNFTs();
+      
     });
 
 
@@ -913,14 +943,13 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     }) 
 
     it('Test 39: testing functions to query and test all NFTs and their positions, all arrays etc. ', async () => {  
-      showArrayOfAccount(accounts[5]);
+      //showArrayOfAccount(accounts[5]);
       // await assertPositionOfSpecificNFT(3);
     // await assertPositionsOfAllNFTsAndAssertAllArrays();
-    /*
-    expectedIDs = 2;
-    // assertPositionOfNFTAndArray(accounts[1], ...expectedIDs);
-    await assertPositionOfNFTAndArray(accounts[8], expectedIDs);*/
+    
+    
 
+    await assertPositionsOfAllNFTs();
      
 
     }) 

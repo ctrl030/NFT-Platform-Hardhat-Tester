@@ -36,8 +36,8 @@
       ]
     },
     "C:\\github\\NFT-Platform-Hardhat-Tester\\contracts\\Monkeycontract.sol": {
-      "lastModificationDate": 1622559533683,
-      "contentHash": "724c5badd12139ceaa844e7ee14c531e",
+      "lastModificationDate": 1622577558156,
+      "contentHash": "289c23ba85afe4514017136cb0517add",
       "sourceName": "contracts/Monkeycontract.sol",
       "solcConfig": {
         "version": "0.5.12",

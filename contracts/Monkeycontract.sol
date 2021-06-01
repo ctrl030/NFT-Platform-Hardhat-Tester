@@ -601,7 +601,12 @@ contract MonkeyContract is IERC721, Ownable {
         
         // deleting the tokenId from the old owners array of monkeys
         if ((_owners2tokenIdArrayMapping[_monkeyOwner]).length > 0 ){
-            delete _owners2tokenIdArrayMapping[_monkeyOwner][MonkeyIdPositionsMapping[_monkeyOwner][_tokenId]];
+
+            // looking up the position of the NFT in it's owners _owners2tokenIdArrayMapping, which is saved in the MonkeyIdPositionsMapping
+            uint256 savedTokenPosition = MonkeyIdPositionsMapping[_monkeyOwner][_tokenId];
+            
+            // using the found position to delete the NFT ownership entry in the _owners2tokenIdArrayMapping for this user
+            delete _owners2tokenIdArrayMapping[_monkeyOwner][savedTokenPosition];
         }                
 
         // deleting the saved index position, since old address is not longer owner
