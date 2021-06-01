@@ -11,11 +11,11 @@ let monkeyMarketplaceHHInstance;
 let accountToAddressArray = [];
 
 // asserting a specific amount of NFTs for an account
-async function assertAmountofNFTs(acc, amount){
+async function assertAmountofNFTs(accToCheck, expectedAmount){
 // checking how many NFTs are owned by account 'acc', should be 'amount' 
-const prepAmountNFTsAcc = await monkeyContractHHInstance.balanceOf(acc);
+const prepAmountNFTsAcc = await monkeyContractHHInstance.balanceOf(accToCheck);
 const ammountNFTsAcc = parseInt(prepAmountNFTsAcc) ;
-assert.equal(ammountNFTsAcc, amount)
+assert.equal(ammountNFTsAcc, expectedAmount)
 }
 
 // asserting owner and generation for an NFT
@@ -65,9 +65,11 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
+// controls MonkeyIdPositionsMapping by comparing it's results to _owners2tokenIdArrayMapping
 // should be called passing amount and an spreading array of expected tokenId, for ex.:
-async function assertPositionOfNFTAndArray(ownerAccount, tokenId){
+async function assertPositionsOfAllNFTsAndArrayForAccount(ownerAccount){
 
+  // using _owners2tokenIdArrayMapping as control variable to compare against
   // getting the owner's array of NFTs (without 0 entries): _owners2tokenIdArrayMapping
   let arrayOfFoundNFTs = await getNFTArrayOfAccount(ownerAccount);
   // array to add found tokenIds to
@@ -77,19 +79,21 @@ async function assertPositionOfNFTAndArray(ownerAccount, tokenId){
   for (let findInde = 0; findInde < arrayOfFoundNFTs.length; findInde++) {    
     const tokenIdToLookUp = arrayOfFoundNFTs[findInde];
 
-    console.log('Looking up Token ID: ', tokenIdToLookUp);
+    console.log(findAccountForAddress(ownerAccount), ' is getting checked.');
+    console.log('Checking his token array at position:', findInde);
+    console.log('Found Token ID: ', tokenIdToLookUp, ', looking up it`s position in MonkeyIdPositionsMapping');
 
     // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
     const positionFoundBN = await monkeyContractHHInstance.findNFTposition(ownerAccount, tokenIdToLookUp);
     const positionFound = parseInt(positionFoundBN);
 
-    console.log('positionFound: ', positionFound);
+    console.log('positionFound in MonkeyIdPositionsMapping: ', positionFound);
 
     // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
     const tokenFound = arrayOfFoundNFTs[positionFound];
 
     // also pushing the found tokenId to a controlArray
-    controlArray.push(tokenFound);
+    controlArray[positionFound] = tokenFound;
 
     assert.equal(tokenFound, tokenIdToLookUp);
   }
@@ -99,6 +103,40 @@ async function assertPositionOfNFTAndArray(ownerAccount, tokenId){
 
 }
 
+async function assertPositionOfSpecificNFT(tokenIdtoCheck){
+
+  let foundOwner = await monkeyContractHHInstance.ownerOf(tokenIdtoCheck);
+
+  console.log('Token ID: ', tokenIdtoCheck, 'is owned by: ', findAccountForAddress(foundOwner)); 
+
+  // using _owners2tokenIdArrayMapping as control variable to compare against
+  // getting the owner's array of NFTs (without 0 entries): _owners2tokenIdArrayMapping
+  let arrayOfFoundNFTs = await getNFTArrayOfAccount(foundOwner);
+  console.log('This is their _owners2tokenIdArrayMapping: ', findAccountForAddress(foundOwner));
+  console.log('Looking up position in MonkeyIdPositionsMapping for Token ID:', tokenIdtoCheck);
+
+  // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
+  const positionFoundBN = await monkeyContractHHInstance.findNFTposition(foundOwner,tokenIdtoCheck);
+  const positionFound = parseInt(positionFoundBN);
+
+  console.log('Token ID: ', tokenIdtoCheck, ' should be in this position in their _owners2tokenIdArrayMapping: ', positionFound);
+
+  // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
+  const tokenFound = arrayOfFoundNFTs[positionFound];
+
+  assert.equal(tokenFound, tokenIdtoCheck);
+
+}
+
+
+
+
+
+
+async function checkOwnerMapping(tokenIdTocheck, expectedOwnerAcc){
+ const checkedTokenIdOwner = await monkeyContractHHInstance.ownerOf(tokenIdTocheck);
+ assert.equal(checkedTokenIdOwner, expectedOwnerAcc);
+}
 
 async function getNFTArrayOfAccount(acc){
   // outer array holds 1 element: the inner array with BN elements
@@ -123,6 +161,37 @@ async function getNFTArrayOfAccount(acc){
 
   return convertedNumArr;
 }
+
+async function checkAllNFTsInAllFourNFTTrackers (){
+
+  /*
+  - get all nfts that exist
+  - loop through them
+  - get their details, and check all thats possible, gen, owner
+  - look up their owner
+  - 
+  */
+
+  assertAmountofNFTs(accToCheck, expectedAmount)
+
+  // returns array of Token IDs, does not assert
+  getNFTArrayOfAccount(acc)
+
+  
+  assertPositionOfNFTAndArray()
+
+  checkOwnerMapping(tokenIdTocheck, expectedOwnerAcc)
+
+}
+
+
+
+
+
+
+
+
+
 
 // show X - functions to console.log
 
@@ -826,7 +895,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await assertAmountOfActiveOffersAndCount(4);
 
       
-      await assertPositionOfNFTAndArray(accounts[8], 1);
+      await assertPositionsOfAllNFTsAndArrayForAccount(accounts[8]);
       /*
       expectedIDs = 2;
       // assertPositionOfNFTAndArray(accounts[1], ...expectedIDs);

@@ -72,13 +72,14 @@ contract MonkeyContract is IERC721, Ownable {
     // boolean that shows if the operator address actually is operator or not
     mapping (address => mapping (address => bool)) private operatorApprovalsMapping;      
 
-    // maps owner to an array that holds all their tokenIds
-    // can be queried by findMonkeyIdsOfAddress function
+    // maps owner to an array that holds all their tokenIds    
     // tokenId positions are saved in this mapping: MonkeyIdPositionsMapping , (see below) 
+    // can be queried by findMonkeyIdsOfAddress function
     mapping(address => uint256[]) public _owners2tokenIdArrayMapping;
 
     // used to keep track of owners and their crypto monkeys 
-    // owner to tokenid to position in this array: _owners2tokenIdArrayMapping , (see above) 
+    // owner to tokenid to position in this array: _owners2tokenIdArrayMapping , (see above)
+    // can  be queried by findNFTposition function
     mapping(address => mapping(uint256 => uint256)) public MonkeyIdPositionsMapping;
 
 
