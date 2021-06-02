@@ -544,6 +544,8 @@ contract('MonkeyContract with HH', accounts => {
       
       assert.equal(testingMonkey.owner, accounts[2]);      
 
+      await assertPositionsOfAllNFTs();
+
       
     });
 
@@ -945,13 +947,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     it('Test 39: testing functions to query and test all NFTs and their positions, all arrays etc. ', async () => {  
       //showArrayOfAccount(accounts[5]);
       // await assertPositionOfSpecificNFT(3);
-    // await assertPositionsOfAllNFTsAndAssertAllArrays();
-    
-    
-
-    await assertPositionsOfAllNFTs();
-     
-
+      // await assertPositionsOfAllNFTsAndAssertAllArrays();
+      await assertPositionsOfAllNFTs();
     }) 
 
 
