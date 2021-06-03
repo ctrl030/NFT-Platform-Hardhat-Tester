@@ -65,11 +65,28 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   assert.equal(resultMarketOpTest, true);
 }
 
+async function findNFTPositionJS (ownerToQuery, tokenIdtoCheck) {
+
+  if (tokenIdtoCheck !=0){
+    
+    const positionFoundBN = await monkeyContractHHInstance.findNFTposition(ownerToQuery, tokenIdtoCheck);
+    const positionFound = parseInt(positionFoundBN);
+  
+    //console.log('Token ID: ', tokenIdtoCheck, ' should be in the _owners2tokenIdArrayMapping of', findAccountForAddress(ownerToQuery),'in this position: ', positionFound);
+  
+    return positionFound;
+
+  } else {
+    console.log(' Error, trying to lookup Token ID Zero, but burnt/zero address is not in accounts.')
+  }
+
+	
+}
   
 
 // controls MonkeyIdPositionsMapping by comparing it's results to _owners2tokenIdArrayMapping
 // should be called passing amount and an spreading array of expected tokenId, for ex.:
-async function assertPositionsOfAllNFTs(){
+async function assertPosIntegrAllNFTs(){
 
   // this many NFTs exist
   const totalSupplyAmount = parseInt(await monkeyContractHHInstance.showTotalSupply()) ;  
@@ -93,8 +110,7 @@ async function assertPositionsOfAllNFTs(){
     //showArrayOfAccount(ownerAccount);
      
     // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
-    const positionFoundBN = await monkeyContractHHInstance.findNFTposition(ownerAccount, assertAllIndex);
-    const positionFound = parseInt(positionFoundBN);
+    const positionFound = await findNFTPositionJS(ownerAccount, assertAllIndex);
 
     //console.log('Token ID', assertAllIndex, 'should be found in this position:', positionFound);
 
@@ -148,21 +164,62 @@ async function checkAllNFTsInAllFourNFTTrackers (){
 
   4
   MonkeyIdPositionsMapping
-  assertPositionsOfAllNFTs
+  assertPosIntegrAllNFTs
   assertPositionOfSpecificNFT
 
   */
 
-  
+}
 
+// for now must have "let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per run
+let collectingArray = []; // put into global scope
+async function deepCompareNFTArray (accountToTest, expectedArray) {
+
+  // the collecting array in global scope receives the incoming expectedArray
+  collectingArray = expectedArray;
   
-  
+  // looking up the accounts NFT array in the _owners2tokenIdArrayMapping 
+  const queriedArray = await getNFTArrayOfAccount(accountToTest);
+
+  // comparing both arrays
+  assert.deepEqual(queriedArray, collectingArray);
+
+  //console.log('NFT array of', findAccountForAddress(accountToTest), 'is exactly as expected.');
+
+  // resetting the collectingArray to empty
+  collectingArray = [];
+
+}
+
+// XXXXX
+async function assertNFTArrIntegrityWPositions(accountToTest, expectedArray) {
+  for (let index = 0; index < expectedArray.length; index++) {
+
+    const tokenIdFoundInExpectedArr = expectedArray[index];
+
+    // skipping deleted entries, i.e. entries with Token ID 0 
+    if (tokenIdFoundInExpectedArr !=0) {
+      await assertPosOfSpecificNFTinArray(accountToTest, tokenIdFoundInExpectedArr, expectedArray);
+    } 
+    
+  }
+
+}
+
+//xxxxxx
+async function assertPosOfSpecificNFTinArray(accountToTest, tokenIdtoCheck, expectedArray) {
+
+  const positionFound = await findNFTPositionJS(accountToTest,tokenIdtoCheck);  
+
+  // checking the incoming array at the position that was found in the MonkeyIdPositionsMapping
+  const tokenFound = expectedArray[positionFound];
+
+  assert.equal(tokenFound, tokenIdtoCheck);
 
 }
 
 
-
-async function assertPositionOfSpecificNFT(tokenIdtoCheck){
+async function assertPositionIntegrityOfSpecificNFT(tokenIdtoCheck){
 
   let foundOwner = await monkeyContractHHInstance.ownerOf(tokenIdtoCheck);
 
@@ -175,10 +232,7 @@ async function assertPositionOfSpecificNFT(tokenIdtoCheck){
   console.log('Looking up position in MonkeyIdPositionsMapping for Token ID:', tokenIdtoCheck);
 
   // looking up this NFT, using address and tokenId, in the MonkeyIdPositionsMapping
-  const positionFoundBN = await monkeyContractHHInstance.findNFTposition(foundOwner,tokenIdtoCheck);
-  const positionFound = parseInt(positionFoundBN);
-
-  console.log('Token ID: ', tokenIdtoCheck, ' should be in this position in their _owners2tokenIdArrayMapping: ', positionFound);
+  const positionFound = await findNFTPositionJS(foundOwner,tokenIdtoCheck);  
 
   // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
   const tokenFound = arrayOfFoundNFTs[positionFound];
@@ -187,7 +241,14 @@ async function assertPositionOfSpecificNFT(tokenIdtoCheck){
 
 }
 
+async function assertAllFourTrackersCorrect (accToQuery, expectedAmount, expectedArray) {
 
+  await assertAmountofNFTs(accToQuery, expectedAmount);
+
+  await deepCompareNFTArray (accToQuery, expectedArray);
+
+  await assertNFTArrIntegrityWPositions(accToQuery, expectedArray);  
+} 
 
 
 
@@ -252,7 +313,13 @@ function findAccountForAddress(addressToLookup){
 
 // for testing/debugging: show the NFT array of an account
 async function showArrayOfAccount(acc){
-  
+
+  const readableAcc = findAccountForAddress(acc);
+
+  const amountOfTestingAcc = parseInt( await monkeyContractHHInstance.balanceOf(acc));
+
+  console.log(readableAcc , 'has this many NFTs:', amountOfTestingAcc);
+        
   // this will receive the incoming array
   const bigNrAccOutArr = [];
 
@@ -271,7 +338,7 @@ async function showArrayOfAccount(acc){
     convertedNumArr.push( convertedNrToPush ); 
     
   }      
-  console.log(findAccountForAddress(acc)  +' has this NFT array: ');
+  console.log( readableAcc +' has this NFT array: ');
   console.log(convertedNumArr);  
 }
 
@@ -442,7 +509,10 @@ contract('MonkeyContract with HH', accounts => {
 
       // checking total supply of NFTs, should be 10, one Zero Monkey plus 9 gen0
       const totalSupplyAfterCreating10 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(totalSupplyAfterCreating10, 10)  
+      assert.equal(totalSupplyAfterCreating10, 10);      
+      
+      const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
+      assertAllFourTrackersCorrect (accounts[0], 9,  account0ArrayToAssert);
       
 
     });
@@ -472,7 +542,11 @@ contract('MonkeyContract with HH', accounts => {
         assert.equal(amountNFTsForAccounts0, correctTokenID)
       }
       const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(parseInt(totalSupplyAfterCreating12), 12);    
+      assert.equal(parseInt(totalSupplyAfterCreating12), 12);        
+      
+      const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ];
+      assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
+
     });
     
     it('Test 10: accounts[1] should try to create NFT, but is not authorized, should fail', async() => {             
@@ -544,7 +618,7 @@ contract('MonkeyContract with HH', accounts => {
       
       assert.equal(testingMonkey.owner, accounts[2]);      
 
-      await assertPositionsOfAllNFTs();
+      await assertPosIntegrAllNFTs();
 
       
     });
@@ -942,17 +1016,33 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
      //xxxx assert new ownership
 
-    }) 
+    }); 
 
-    it('Test 39: testing functions to query and test all NFTs and their positions, all arrays etc. ', async () => {  
-      //showArrayOfAccount(accounts[5]);
-      // await assertPositionOfSpecificNFT(3);
-      // await assertPositionsOfAllNFTsAndAssertAllArrays();
-      await assertPositionsOfAllNFTs();
-    }) 
-
-
+    it('Test 39makeLast: should verify the intergrity between trackers _monkeyIdsAndTheirOwnersMapping and MonkeyIdPositionsMapping for all NFTs', async () => {  
+      
+      //await assertPosIntegrAllNFTs();
+    }); 
     
+
+    it('Test 40: should use new assertions succesfully', async () => {  
+
+      //showArrayOfAccount(accounts[4]);
+      
+      // this must be filled out in each test, so that he will compare to exactly the ones I want
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
+      
+     
+
+      assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+     
+
+      
+      
+
+    }); 
+
+
     
   });
 
