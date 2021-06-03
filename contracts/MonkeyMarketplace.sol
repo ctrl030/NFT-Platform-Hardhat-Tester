@@ -100,7 +100,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
 
       for (uint256 k = 0; k < offersArray.length; k++) {
         
-        // each time an active offer is found, it is entered into the next position in the 'result' array
+        // each time an active offer is found, its tokenId is put into the next position in the 'result' array
         if (offersArray[k].active) {
           result[newIndex] = offersArray[k].tokenId;
           newIndex++;

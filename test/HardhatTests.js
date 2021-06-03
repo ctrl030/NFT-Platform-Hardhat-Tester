@@ -173,6 +173,7 @@ async function checkAllNFTsInAllFourNFTTrackers (){
 
 // for now must have "let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per run
 let collectingArray = []; // put into global scope
+
 async function deepCompareNFTArray (accountToTest, expectedArray) {
 
   // the collecting array in global scope receives the incoming expectedArray
@@ -191,7 +192,8 @@ async function deepCompareNFTArray (accountToTest, expectedArray) {
 
 }
 
-// XXXXX
+// uses checkOwnerMapping to check _monkeyIdsAndTheirOwnersMapping 
+// and assertPosOfSpecificNFTinArray to check MonkeyIdPositionsMapping 
 async function assertNFTArrIntegrityWPositions(accountToTest, expectedArray) {
   for (let index = 0; index < expectedArray.length; index++) {
 
@@ -199,6 +201,7 @@ async function assertNFTArrIntegrityWPositions(accountToTest, expectedArray) {
 
     // skipping deleted entries, i.e. entries with Token ID 0 
     if (tokenIdFoundInExpectedArr !=0) {
+      await checkOwnerMapping(tokenIdFoundInExpectedArr, accountToTest);
       await assertPosOfSpecificNFTinArray(accountToTest, tokenIdFoundInExpectedArr, expectedArray);
     } 
     
@@ -512,7 +515,7 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(totalSupplyAfterCreating10, 10);      
       
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
-      assertAllFourTrackersCorrect (accounts[0], 9,  account0ArrayToAssert);
+      await assertAllFourTrackersCorrect (accounts[0], 9,  account0ArrayToAssert);
       
 
     });
@@ -545,7 +548,7 @@ contract('MonkeyContract with HH', accounts => {
       assert.equal(parseInt(totalSupplyAfterCreating12), 12);        
       
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ];
-      assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
+      await assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
 
     });
     
@@ -554,6 +557,9 @@ contract('MonkeyContract with HH', accounts => {
       await expectRevert.unspecified(
         monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[1]})
       );      
+
+      const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ];
+      await assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
        
     });
     
@@ -569,6 +575,9 @@ contract('MonkeyContract with HH', accounts => {
       const totalSupplynow2 = await monkeyContractHHInstance.showTotalSupply();    
       assert.equal(parseInt(totalSupplynow2), 13);
 
+      const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+      await assertAllFourTrackersCorrect (accounts[0], 12,  account0ArrayToAssert);
+
     });
     
     it('Test 12: Limit is reached, creating another NFT should fail', async() => {             
@@ -576,6 +585,9 @@ contract('MonkeyContract with HH', accounts => {
       await expectRevert.unspecified(
         monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]})
       );      
+
+      const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+      await assertAllFourTrackersCorrect (accounts[0], 12,  account0ArrayToAssert);
       
     });
     
@@ -620,6 +632,11 @@ contract('MonkeyContract with HH', accounts => {
 
       await assertPosIntegrAllNFTs();
 
+      const account0ArrayToAssert = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
+      await assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
+
+      const account2ArrayToAssert = [1];
+      await assertAllFourTrackersCorrect (accounts[2], 1,  account2ArrayToAssert);
       
     });
 
@@ -635,6 +652,15 @@ contract('MonkeyContract with HH', accounts => {
       
         assert.equal(testingMonkey.owner, accounts[2]);        
       }
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 11, 12 ];
+      await assertAllFourTrackersCorrect (accounts[0], 7,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [];
+      await assertAllFourTrackersCorrect (accounts[1], 0,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 5];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
       
     });
 
@@ -649,6 +675,15 @@ contract('MonkeyContract with HH', accounts => {
       
         assert.equal(testingMonkey.owner, accounts[1]);        
       }
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [6, 7, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 7,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 5];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
       
     });
 
@@ -676,6 +711,15 @@ contract('MonkeyContract with HH', accounts => {
 
       assert.equal(testingMonkeyNr7.owner, accounts[2]);
 
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [6, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 6,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 5, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 6,  account2ArrayToAssert);
+
     });
 
     
@@ -687,6 +731,18 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr6 = await monkeyContractHHInstance.getMonkeyDetails(6);
       
       assert.equal(testingMonkeyNr6.owner, accounts[3]);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 5, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 6,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [6];
+      await assertAllFourTrackersCorrect (accounts[3], 1,  account3ArrayToAssert);
 
     });
     
@@ -719,6 +775,20 @@ contract('MonkeyContract with HH', accounts => {
       //console.log('testingMonkey5.owner is', testingMonkey5.owner);
 
       assert.equal(testingMonkey5.owner, accounts[3]);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [6, 5];
+      await assertAllFourTrackersCorrect (accounts[3], 2,  account3ArrayToAssert);
+
+
     });
 
   })
@@ -765,10 +835,23 @@ contract('MonkeyContract with HH', accounts => {
         assert.equal(loopAmountNFTsForAccounts3, index + 2);
       }
       
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [6,5,13,14,15,16,17,18,19,20,21,22,23,24,25,26];
+      await assertAllFourTrackersCorrect (accounts[3], 16,  account3ArrayToAssert);
+
+
     });
 
     it('Test 22A: accounts[3] should use safeTransferFrom to move 4 NFTs from itself to accounts[4]. Token IDs 5 and 6 (gen0) and Token IDs 14 and 15 (gen1)' , async() => {       
-      // transferring Token ID 15
+      // transferring Token ID 5
       await monkeyContractHHInstance.safeTransferFrom(accounts[3], accounts[4], 5, { 
         from: accounts[3],
       });  
@@ -776,7 +859,7 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr5 = await monkeyContractHHInstance.getMonkeyDetails(5);        
       assert.equal(testingMonkeyNr5.owner, accounts[4]);
 
-      // repeat for Token ID 16
+      // repeat for Token ID 6
       await monkeyContractHHInstance.safeTransferFrom(accounts[3], accounts[4], 6, { 
         from: accounts[3],
       });        
@@ -797,12 +880,25 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr15 = await monkeyContractHHInstance.getMonkeyDetails(15);        
       assert.equal(testingMonkeyNr15.owner, accounts[4]);  
 
-      // accounts[4] should have 4 NFTs at this point: 5, 6, 14, 15
-      assertAmountofNFTs(accounts[4], 4)      
 
-      // checking how many NFTs are owned by accounts[3], should be 12 (2 gen0 have been sent, also Token IDs 14 and 15, i.e. 12 left of 14 bred)
-      assertAmountofNFTs(accounts[3], 12)
-      
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
+
+      // accounts[3], should have 12 (2 gen0 have been sent, also Token IDs 14 and 15, i.e. 12 left of 14 bred)
+      const account3ArrayToAssert = [0,0,13,0,0,16,17,18,19,20,21,22,23,24,25,26];
+      await assertAllFourTrackersCorrect (accounts[3], 12,  account3ArrayToAssert);
+
+      // accounts[4] should have 4 NFTs at this point: 5, 6, 14, 15
+      const account4ArrayToAssert = [5, 6, 14, 15];
+      await assertAllFourTrackersCorrect (accounts[4], 4,  account4ArrayToAssert);
+
+
 
     });   
 
@@ -847,8 +943,21 @@ contract('MonkeyContract with HH', accounts => {
         test22BSecondParentIdCounter = test22BFirstParentIdCounter+1;    
       }      
 
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [1, 2, 3, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 5,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0,0,13,0,0,16,17,18,19,20,21,22,23,24,25,26];
+      await assertAllFourTrackersCorrect (accounts[3], 12,  account3ArrayToAssert);
+
       // expecting 16 NFTs, 4 from before (5,6,14,15) plus 2 bred gen2 (27,28) plus 10 bred gen3-gen7 (5 loops of 2)
-      assertAmountofNFTs(accounts[4], 16);          
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
       
     });
   });
@@ -924,6 +1033,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await expectNoActiveOfferAndCount(35);       
       await assertAmountOfActiveOffersAndCount(6);
     }) 
+  });
+
+  describe('Testing buying and full market functionality', () => { 
 
     it('Test 31: accounts[5] should buy 3 NFTs (Token IDs: 1,2,3) from accounts[2], now 3 active offers should exist (Token IDs: 36,37,38)', async () => {  
         for (let buyCountT31 = 1; buyCountT31 <= 3; buyCountT31++) { 
@@ -932,6 +1044,26 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});
       }      
       await assertAmountOfActiveOffersAndCount(3);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0,0,0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0,0,13,0,0,16,17,18,19,20,21,22,23,24,25,26];
+      await assertAllFourTrackersCorrect (accounts[3], 12,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [1, 2, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 3,  account5ArrayToAssert);
+
+
     })   
 
     it('Test 32: accounts[1] should buy 2 NFTs (Token IDs: 36, 37) from accounts[4], now 1 active offer should exist (Token ID: 38)', async () => {  
@@ -941,6 +1073,24 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT32, {from: accounts[1], value: t32priceToPayInWEI});
       }
       await assertAmountOfActiveOffersAndCount(1);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[1], 7,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0,0,0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0,0,13,0,0,16,17,18,19,20,21,22,23,24,25,26];
+      await assertAllFourTrackersCorrect (accounts[3], 12,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38];
+      await assertAllFourTrackersCorrect (accounts[4], 14,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [1, 2, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 3,  account5ArrayToAssert);
     }) 
     
     it('Test 33: accounts[3] should breed NFTs (IDs:25,26) creating 3 gen2 NFTs (Token IDs:39,40,41) create offers, now 4 active offers (Token ID: 38,39,40,41)', async () => {  
@@ -957,6 +1107,24 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         await createOfferAndAssert (test33Counter, test33Counter, accounts[3]);    
       }
       await assertAmountOfActiveOffersAndCount(4);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[1], 7,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0,0,0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0,0,13,0,0,16,17,18,19,20,21,22,23,24,25,26, 39, 40, 41];
+      await assertAllFourTrackersCorrect (accounts[3], 15,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38];
+      await assertAllFourTrackersCorrect (accounts[4], 14,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [1, 2, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 3,  account5ArrayToAssert);
     }) 
     
     it('Test 34: accounts[1] should create 2 offers (Token IDs:36,37) and accounts[5] 2 offers (Token IDs:1,2), now 8 active offers (Token IDs: 1,2,36,37,38,39,40,41)', async () => {  
@@ -988,12 +1156,54 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT35, {from: accounts[4], value: t35priceToPayInWEI});
       }
       await assertAmountOfActiveOffersAndCount(6);
+
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0, 0, 0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0, 0, 13, 0, 0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 39, 40, 41];
+      await assertAllFourTrackersCorrect (accounts[3], 15,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [1, 2, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 3,  account5ArrayToAssert);
     })     
     
     it('Test 36: accounts[6] (Token IDs 1) and accounts[7] (Token ID 2) should buy from accounts[5], now 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
       await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[6], value: web3.utils.toWei('1')});   
       await monkeyMarketplaceHHInstance.buyMonkey(2, {from: accounts[7], value: web3.utils.toWei('2')});   
-      await assertAmountOfActiveOffersAndCount(4);     
+      await assertAmountOfActiveOffersAndCount(4);
+      
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0, 0, 0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0, 0, 13, 0, 0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 39, 40, 41];
+      await assertAllFourTrackersCorrect (accounts[3], 15,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [0, 0, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 1,  account5ArrayToAssert);
+
+      const account6ArrayToAssert = [1];
+      await assertAllFourTrackersCorrect (accounts[6], 1,  account6ArrayToAssert);
+
+      const account7ArrayToAssert = [2];
+      await assertAllFourTrackersCorrect (accounts[7], 1,  account7ArrayToAssert);
     }) 
     
     it('Test 37: accounts[6] creates 1 offer with decimal amount for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
@@ -1003,7 +1213,34 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await monkeyMarketplaceHHInstance.buyMonkey(1, {from: accounts[8], value: web3.utils.toWei('2.456')});         
       await assertAmountOfActiveOffersAndCount(4);
 
-      //xxxx assert new ownership
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
+
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0, 0, 0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0, 0, 13, 0, 0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 39, 40, 41];
+      await assertAllFourTrackersCorrect (accounts[3], 15,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [0, 0, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 1,  account5ArrayToAssert);
+
+      const account6ArrayToAssert = [0];
+      await assertAllFourTrackersCorrect (accounts[6], 0,  account6ArrayToAssert);
+
+      const account7ArrayToAssert = [2];
+      await assertAllFourTrackersCorrect (accounts[7], 1,  account7ArrayToAssert);
+
+      const account8ArrayToAssert = [1];
+      await assertAllFourTrackersCorrect (accounts[8], 1,  account8ArrayToAssert);
+
+
     }) 
     
     it('Test 38: accounts[7] creates 1 offer with decimal amount under 1 for Token ID 1, which is then bought by accounts[8], now still 4 active offers (Token IDs: 38,39,40,41) ', async () => {  
@@ -1014,8 +1251,32 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       // showArrayOfAccount(accounts[8]);  
       await assertAmountOfActiveOffersAndCount(4);
 
-     //xxxx assert new ownership
+      const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
 
+      const account1ArrayToAssert = [0, 0, 8, 9, 10, 11, 12, 0, 0];
+      await assertAllFourTrackersCorrect (accounts[1], 5,  account1ArrayToAssert);
+
+      const account2ArrayToAssert = [0, 0, 0, 4, 0, 7];
+      await assertAllFourTrackersCorrect (accounts[2], 2,  account2ArrayToAssert);
+
+      const account3ArrayToAssert = [0, 0, 13, 0, 0, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 39, 40, 41];
+      await assertAllFourTrackersCorrect (accounts[3], 15,  account3ArrayToAssert);
+      
+      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+
+      const account5ArrayToAssert = [0, 0, 3];
+      await assertAllFourTrackersCorrect (accounts[5], 1,  account5ArrayToAssert);
+
+      const account6ArrayToAssert = [0];
+      await assertAllFourTrackersCorrect (accounts[6], 0,  account6ArrayToAssert);
+
+      const account7ArrayToAssert = [0];
+      await assertAllFourTrackersCorrect (accounts[7], 0,  account7ArrayToAssert);
+
+      const account8ArrayToAssert = [1, 2];
+      await assertAllFourTrackersCorrect (accounts[8], 2,  account8ArrayToAssert);
     }); 
 
     it('Test 39makeLast: should verify the intergrity between trackers _monkeyIdsAndTheirOwnersMapping and MonkeyIdPositionsMapping for all NFTs', async () => {  
@@ -1033,7 +1294,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       
      
 
-      assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
+      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
 
      
 
