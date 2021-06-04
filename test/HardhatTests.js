@@ -171,9 +171,9 @@ async function checkAllNFTsInAllFourNFTTrackers (){
 
 }
 
+// deep comparing an array of Token IDs to the queried array in the _owners2tokenIdArrayMapping
 // for now must have "let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per run
 let collectingArray = []; // put into global scope
-
 async function deepCompareNFTArray (accountToTest, expectedArray) {
 
   // the collecting array in global scope receives the incoming expectedArray
@@ -195,6 +195,8 @@ async function deepCompareNFTArray (accountToTest, expectedArray) {
 // uses checkOwnerMapping to check _monkeyIdsAndTheirOwnersMapping 
 // and assertPosOfSpecificNFTinArray to check MonkeyIdPositionsMapping 
 async function assertNFTArrIntegrityWPositions(accountToTest, expectedArray) {
+
+  // looping through the incoming expectedArray 
   for (let index = 0; index < expectedArray.length; index++) {
 
     const tokenIdFoundInExpectedArr = expectedArray[index];
@@ -244,23 +246,29 @@ async function assertPositionIntegrityOfSpecificNFT(tokenIdtoCheck){
 
 }
 
+// asserting correct entry in all 4 NFT trackers
 async function assertAllFourTrackersCorrect (accToQuery, expectedAmount, expectedArray) {
 
+  // asserts correct amount entry in _numberOfNFTsOfAddressMapping
   await assertAmountofNFTs(accToQuery, expectedAmount);
 
+  // asserts exactly same array as expectedArray in _owners2tokenIdArrayMapping
   await deepCompareNFTArray (accToQuery, expectedArray);
 
+  // asserts correct ownership entry in _monkeyIdsAndTheirOwnersMapping 
+  // asserts correct position in MonkeyIdPositionsMapping 
   await assertNFTArrIntegrityWPositions(accToQuery, expectedArray);  
 } 
 
 
 
-
+// checking ownership entry in _monkeyIdsAndTheirOwnersMapping via ownerOf 
 async function checkOwnerMapping(tokenIdTocheck, expectedOwnerAcc){
  const checkedTokenIdOwner = await monkeyContractHHInstance.ownerOf(tokenIdTocheck);
  assert.equal(checkedTokenIdOwner, expectedOwnerAcc);
 }
 
+// querying an accounts NFT array entry in _owners2tokenIdArrayMapping via findMonkeyIdsOfAddress
 async function getNFTArrayOfAccount(acc){
   // outer array holds 1 element: the inner array with BN elements
   const bigNrAccOutArr = [];
