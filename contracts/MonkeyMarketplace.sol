@@ -22,6 +22,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   }
 
   // Array of all offers
+  // can be queried by onlyOwner via showOfferArrayEntry
   Offer[] offersArray; 
 
   // Mapping of Token ID to offer
@@ -222,5 +223,24 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
     emit MarketTransaction("Buy", msg.sender, _tokenId);
     emit monkeySold (_oldOwner, msg.sender, _priceInGwei, _tokenId);
   }
+
+  function showLengthOfOffersArray() external view onlyOwner returns(uint256 length) {
+    return offersArray.length;
+  }
+
+  
+  function showOfferArrayEntry(uint256 arrayPosition) external view onlyOwner returns(address seller, uint256 price, uint256 index, uint256 tokenId, bool active) { 
+
+    Offer memory offer = offersArray[arrayPosition]; 
+
+    return (
+    offer.seller,
+    offer.price,
+    offer.index, 
+    offer.tokenId,
+    offer.active       
+    );      
+
+  }    
 
 } 
