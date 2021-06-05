@@ -5,9 +5,9 @@ const { expectRevert, expectEvent, balance } = require('@openzeppelin/test-helpe
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
 
-// this array will receive the generated Hardhat addresses,
+// this array serves as will receive the generated Hardhat addresses,
 // i.e. accountToAddressArray[0] will hold the address of accounts[0]
-// can then be used to facilitate console.log
+// can be queried by showAllAccounts and findAccountForAddress
 let accountToAddressArray = [];
 
 // asserting a specific amount of NFTs for an account
@@ -86,8 +86,7 @@ async function findNFTPositionJS (ownerToQuery, tokenIdtoCheck) {
 async function assertPosIntegrAllNFTs(){
 
   // this many NFTs exist
-  const totalSupplyAmount = parseInt(await monkeyContractHHInstance.showTotalSupply()) ;  
-  //console.log('This many NFTs exist: ', totalSupplyAmount);
+  const totalSupplyAmount = parseInt(await monkeyContractHHInstance.showTotalSupply());   
 
   // asserting the Zero Monkey was burnt and owned by Zero Address
   const zeroMonkeyOwner = await monkeyContractHHInstance.ownerOf(0);
@@ -115,13 +114,7 @@ async function assertPosIntegrAllNFTs(){
     //console.log('Token ID', assertAllIndex, 'should be found in this position:', positionFound);
 
     // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
-    const tokenFound = arrayOfFoundNFTs[positionFound];
-    
-    //console.log('positionFound:');
-    //console.log(positionFound);
-
-    //console.log('tokenFound:');
-    //console.log(tokenFound);
+    const tokenFound = arrayOfFoundNFTs[positionFound];    
     
     assert.equal(tokenFound, assertAllIndex);    
     //console.log('Token ID', assertAllIndex, 'was in the correct position');
@@ -974,7 +967,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       giveMarketOperatorAndAssertAndCount(accounts[4]);
     }) 
 
-    it('Test 27: accounts[2] should create 4 offers, all gen0 (Token IDs: 1,2,3,4)', async () => {    
+    it('Test 27: accounts[2] should create 4 offers, all gen0 (Token IDs: 1,2,3,4), prices in ETH same as Token ID', async () => {    
 
       for (let test27Counter = 1; test27Counter <= 4; test27Counter++) {        
 
@@ -1005,8 +998,6 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       await expectNoActiveOfferAndCount(4); 
       const offersArray = [1, 2, 3, 35, 36, 37, 38];
       await assertAmountOfActiveOffersAndCount(7, offersArray);
-
-      
     }) 
 
     it('Test 30: accounts[4] should delete 1 active offer (Token ID: 35), now 6 active offers should exist (Token IDs: 1,2,3 and 36,37,38)', async () => {  
@@ -1021,16 +1012,16 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     it('Test 31: accounts[5] should buy 3 NFTs (Token IDs: 1,2,3) from accounts[2], now 3 active offers should exist (Token IDs: 36,37,38)', async () => {  
         for (let buyCountT31 = 1; buyCountT31 <= 3; buyCountT31++) { 
-        //const balanceInETHBefore = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether'); 
-        //console.log('accounts[5] has', parseInt(balanceInETHBefore), 'ether before buying Token ID', buyCountT31)  
+        const balanceInETHBefore = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether'); 
+        console.log('accounts[5] has', parseInt(balanceInETHBefore), 'ether before buying Token ID', buyCountT31)  
         const balanceInWEIBefore = await web3.eth.getBalance(accounts[5]); 
         console.log('accounts[5] has', parseInt(balanceInWEIBefore), 'WEI before buying Token ID', buyCountT31) 
 
         let largeCountingNrT31 = buyCountT31.toString();
         let t31priceToPayInWEI = web3.utils.toWei(largeCountingNrT31);        
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});
-        //const balanceInETHAfter = new BN(web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether'));
-        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
+        const balanceInETHAfter = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether');
+        console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
       }      
       const offersArray = [36,37,38];
       await assertAmountOfActiveOffersAndCount(3, offersArray);
