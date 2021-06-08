@@ -615,10 +615,10 @@ contract('MonkeyContract with HH', accounts => {
       await assertPosIntegrAllNFTs();
 
       const account0ArrayToAssert = [0, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
-      await assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
+      await assertAllFourTrackersCorrect (accounts[0], 11, account0ArrayToAssert);
 
       const account2ArrayToAssert = [1];
-      await assertAllFourTrackersCorrect (accounts[2], 1,  account2ArrayToAssert);
+      await assertAllFourTrackersCorrect (accounts[2], 1, account2ArrayToAssert);
       
     });
 
@@ -732,7 +732,7 @@ contract('MonkeyContract with HH', accounts => {
     // might be due to hardhat, truffle, etc being so new
     // accepts 4 arguments (either without data or targeting an instance with predefined {from: accounts[PREDEFINED_ARRAY_INDEX]})
     // but when given 5 (i.e.  with data plus custom defined account in contract call) throws and says: "Error: Invalid number of parameters for "safeTransferFrom". Got 5 expected 3!"
-    // complicating factor maybe: two functions exist under the name "safeTransferFrom", one accepting 4 argumens, the other only 3, setting the fourth to ''
+    // complicating factor maybe: two functions exist under the name "safeTransferFrom", one accepting 4 arguments, the other only 3, setting the fourth to ''
     it.skip('Test 21: accounts[2] should use safeTransferFrom to move NFT with Token ID 5 from accounts[2] to accounts[3] and also send in data', async() => {       
       await monkeyContractHHInstance.safeTransferFrom(accounts[2], accounts[3], 5, '0xa1234', { 
         from: accounts[2],
@@ -1322,6 +1322,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     it('Test 40: should ', async () => {  
 
+      const testnum = new BN(10);
+      console.log(testnum);
       /*
       const testnumber40 = 31254365376342362423467374;  
       const testnumber40String = testnumber40.toString();
@@ -1340,16 +1342,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
       console.log('testnumber40parseInt', testnumber40parseInt);
       console.log('tryingManualConverFactor', tryingManualConverFactor);
 
-      testnumber40*/
-
-      
-
-     
-      
-      
+      testnumber40*/      
 
     }); 
-
 
     
   });
