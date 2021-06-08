@@ -1,6 +1,7 @@
 const MonkeyContract = artifacts.require('MonkeyContract');
 const MonkeyMarketplace = artifacts.require('MonkeyMarketplace');
-const { expectRevert, expectEvent, balance } = require('@openzeppelin/test-helpers');
+const { expectRevert, expectEvent, balance, BN } = require('@openzeppelin/test-helpers');
+const { assert } = require('hardhat');
 
 let monkeyContractHHInstance;
 let monkeyMarketplaceHHInstance;
@@ -237,7 +238,25 @@ async function getNFTArrayOfAccount(acc){
   return convertedNumArr;
 }
 
+// assert balance of account in WEI, must get as string 
+async function assertBalance(acc, expectedBalanceInWEI) {
 
+  const balanceInWEI = await web3.eth.getBalance(acc);
+  //const balanceInETH = web3.utils.fromWei(await web3.eth.getBalance(acc), 'ether');  
+
+  //const balanceInWEIasString = balanceInWEI.toString() 
+
+  const tenToPowerOf18 = 10**18;
+
+  const expectDividedByTenToPowerOf18 = expectedBalanceInWEI / tenToPowerOf18 ;
+  
+  const resultDividedByTenToPowerOf18 = balanceInWEI / tenToPowerOf18 ;
+
+  console.log('expectDividedByTenToPowerOf18', expectDividedByTenToPowerOf18);
+  console.log('resultDividedByTenToPowerOf18', resultDividedByTenToPowerOf18);
+
+  //assert.equal(resultDividedByTenToPowerOf21, expectDividedByTenToPowerOf21);
+}
 
 
 
@@ -459,8 +478,8 @@ contract('MonkeyContract with HH', accounts => {
         const concattedIndexes = `${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}${i}` 
         
         
-        const truffleReceipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});        
-        expectEvent(truffleReceipt, 'MonkeyCreated', { genes: `${concattedIndexes}` });
+        const receipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});        
+        expectEvent(receipt, 'MonkeyCreated', { genes: `${concattedIndexes}` });
         
         const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(i);
         const genesTested = parseInt(genesTestedDetails.genes);
@@ -489,7 +508,7 @@ contract('MonkeyContract with HH', accounts => {
       // this loop will create 2 gen0 NFTs, each with a DNA string of 1111111111111111
       // it will also check the emitted MonkeyCreated event each time and check if the emitted DNA string is correct as well
       for (let i = 0; i < 2; i++) {              
-        const truffleReceipt2 =  await monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]});  
+        const receipt2 =  await monkeyContractHHInstance.createGen0Monkey(1111111111111111, {from: accounts[0]});  
         
         // checking if genes string is as expected in NFTs with Token ID 10 and 11
         const correctTokenID = i + 10
@@ -499,7 +518,7 @@ contract('MonkeyContract with HH', accounts => {
         assert.equal(genesTested, correctGenes);        
 
         // checking if MonkeyCreated event was correctly triggered
-        expectEvent(truffleReceipt2, 'MonkeyCreated', { genes: `${correctGenes}` }); 
+        expectEvent(receipt2, 'MonkeyCreated', { genes: `${correctGenes}` }); 
         
         // checking how many NFTs are owned by accounts[0] after each loop
         const prepAmountNFTsForAccounts0 = await monkeyContractHHInstance.balanceOf(accounts[0]);
@@ -1012,16 +1031,42 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
     it('Test 31: accounts[5] should buy 3 NFTs (Token IDs: 1,2,3) from accounts[2], now 3 active offers should exist (Token IDs: 36,37,38)', async () => {  
         for (let buyCountT31 = 1; buyCountT31 <= 3; buyCountT31++) { 
-        const balanceInETHBefore = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether'); 
-        console.log('accounts[5] has', parseInt(balanceInETHBefore), 'ether before buying Token ID', buyCountT31)  
-        const balanceInWEIBefore = await web3.eth.getBalance(accounts[5]); 
-        console.log('accounts[5] has', parseInt(balanceInWEIBefore), 'WEI before buying Token ID', buyCountT31) 
 
-        let largeCountingNrT31 = buyCountT31.toString();
-        let t31priceToPayInWEI = web3.utils.toWei(largeCountingNrT31);        
-        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});
-        const balanceInETHAfter = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether');
-        console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
+        // balance in WEI before buy
+        const balanceInWEIBefore = await web3.eth.getBalance(accounts[5]);       
+        //console.log('accounts[5] has', parseInt(balanceInWEIBefore), 'WEI before buying Token ID', buyCountT31) 
+
+        // balance in ETH before buy
+        //const balanceInETHBefore = web3.utils.fromWei(await web3.eth.getBalance(accounts[5]), 'ether'); 
+        //console.log('accounts[5] has', parseInt(balanceInETHBefore), 'ether before buying Token ID', buyCountT31)          
+
+        // setting Token ID to price in ETH (1=>1), calculated into WEI
+        let buyCountT31asString = buyCountT31.toString();
+        let t31priceToPayInWEI = web3.utils.toWei(buyCountT31asString);  
+        
+        console.log('loop and tokenID', buyCountT31, 'has the price in WEI:', t31priceToPayInWEI, 'and this balance:', balanceInWEIBefore);
+        
+        
+
+        await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});  
+
+        const expectedBalanceAfterInWEI = (balanceInWEIBefore - t31priceToPayInWEI);
+        console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
+
+       
+
+
+        
+        const expectedBalanceAfterInWEIasString = expectedBalanceAfterInWEI.toString();
+        
+        
+        await assertBalance(accounts[5], expectedBalanceAfterInWEI);
+
+        // balance after buy
+        //const balanceInWEIAfter = await web3.eth.getBalance(accounts[5]); 
+        //console.log('accounts[5] has', parseInt(balanceInWEIAfter), 'WEI after buying Token ID', buyCountT31)       
+        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
+        
       }      
       const offersArray = [36,37,38];
       await assertAmountOfActiveOffersAndCount(3, offersArray);
@@ -1275,19 +1320,31 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     }); 
     
 
-    it('Test 40: should use new assertions succesfully', async () => {  
+    it('Test 40: should ', async () => {  
 
-      //showArrayOfAccount(accounts[4]);
+      /*
+      const testnumber40 = 31254365376342362423467374;  
+      const testnumber40String = testnumber40.toString();
+      //const testnumber40ToNumber = testnumber40.toNumber();
+      const testnumber40Number = Number(testnumber40);
+      const testnumber40parseInt = parseInt(testnumber40);
+
+      const tryingManualConverFactor = 10**21;
+      const manualTest= testnumber40 / tryingManualConverFactor;
+
+
+      console.log('testnumber40', testnumber40);
+      console.log('testnumber40String', testnumber40String);
+      //console.log('testnumber40ToNumber', testnumber40ToNumber);
+      console.log('testnumber40Number', testnumber40Number);
+      console.log('testnumber40parseInt', testnumber40parseInt);
+      console.log('tryingManualConverFactor', tryingManualConverFactor);
+
+      testnumber40*/
+
       
-      // this must be filled out in each test, so that he will compare to exactly the ones I want
-      const account4ArrayToAssert = [5, 6, 14, 15, 27, 28, 29, 30, 31, 32, 33, 34, 35, 0, 0, 38, 36, 37];
-      
-     
-
-      await assertAllFourTrackersCorrect (accounts[4], 16,  account4ArrayToAssert);
 
      
-
       
       
 
