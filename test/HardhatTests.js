@@ -498,7 +498,6 @@ contract('MonkeyContract with HH', accounts => {
       
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
       await assertAllFourTrackersCorrect (accounts[0], 9,  account0ArrayToAssert);
-      
 
     });
 
@@ -1050,17 +1049,36 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});  
 
-        const expectedBalanceAfterInWEI = (balanceInWEIBefore - t31priceToPayInWEI);
-        console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
+        const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
+        const priceInWEIasBN = new BN(t31priceToPayInWEI);
+        const expectedBalanceAfterInWEIasBN = new BN (balanceBeforeInWEIasBN - priceInWEIasBN);
 
-       
 
+        //console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
+        //console.log('loop and tokenID', buyCountT31, 'has the balanceBeforeInWEIasBN:');
+        //console.log(balanceBeforeInWEIasBN);
 
+        //console.log('loop and tokenID', buyCountT31, 'has the priceInWEIasBN:');
+        //console.log(priceInWEIasBN);
+
+        console.log('loop and tokenID', buyCountT31);
+
+        console.log('priceInWEIasBN');
+        console.log(priceInWEIasBN);
+
+        console.log('balanceBeforeInWEIasBN');
+        console.log(balanceBeforeInWEIasBN);
+
+        console.log('expectedBalanceAfterInWEIasBN');
+        console.log(expectedBalanceAfterInWEIasBN);
+
+        //console.log('parseInt of it is:');
+        //const expectedBalanceAfterInWEIParsed = Number(expectedBalanceAfterInWEIasBN)
+        //console.log(expectedBalanceAfterInWEIParsed);
+
+        //const expectedBalanceAfterInWEIasString = expectedBalanceAfterInWEI.toString();       
         
-        const expectedBalanceAfterInWEIasString = expectedBalanceAfterInWEI.toString();
-        
-        
-        await assertBalance(accounts[5], expectedBalanceAfterInWEI);
+        //await assertBalance(accounts[5], expectedBalanceAfterInWEI);
 
         // balance after buy
         //const balanceInWEIAfter = await web3.eth.getBalance(accounts[5]); 
