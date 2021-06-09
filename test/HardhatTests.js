@@ -794,18 +794,18 @@ contract('MonkeyContract with HH', accounts => {
         // Zero Monkey is in array on index 0, plus 12 NFT monkeys, first free array index is position 13
         const newMonkeyTokenIdTestingDetails = await monkeyContractHHInstance.getMonkeyDetails(index + 12);  
          
-        /*
+        
           // comparing first 2 digits of genes
           let stringOfNFTGenesNow = newMonkeyTokenIdTestingDetails.genes.toString();
-          // console.log('Breed Nr.' + index + ' genes are ' + stringOfNFTGenesNow);  
-          firstTwoDigitsNFTNow = parseInt(stringOfNFTGenesNow.charAt(0)+stringOfNFTGenesNow.charAt(1));
+          console.log('Breed Nr.' + index + ' genes are ' + stringOfNFTGenesNow);  
+          /*firstTwoDigitsNFTNow = parseInt(stringOfNFTGenesNow.charAt(0)+stringOfNFTGenesNow.charAt(1));
           //console.log('Breed Nr.' + index + ' first 2 gene digits LAST are ' + firstTwoDigitsNFTLast); 
           //console.log('Breed Nr.' + index + ' first 2 gene digits NOW are ' + firstTwoDigitsNFTNow);  
           assert.notEqual(firstTwoDigitsNFTNow, firstTwoDigitsNFTLast);
 
           // the 'NFT to check now' becomes the 'last NFT checked' for next loop
-          firstTwoDigitsNFTLast = firstTwoDigitsNFTNow;
-        */
+          firstTwoDigitsNFTLast = firstTwoDigitsNFTNow;*/
+        
 
         // checking if contract owner is owner of NFT
         assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[3]); 
@@ -1051,7 +1051,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
         const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
         const priceInWEIasBN = new BN(t31priceToPayInWEI);
-        const expectedBalanceAfterInWEIasBN = balanceBeforeInWEIasBN - priceInWEIasBN;
+        const expectedBalanceAfterInWEIasBN = balanceBeforeInWEIasBN.sub(priceInWEIasBN);
+        const result31 = expectedBalanceAfterInWEIasBN.toNumber();
 
 
         //console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
@@ -1071,6 +1072,10 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
         console.log('expectedBalanceAfterInWEIasBN');
         console.log(expectedBalanceAfterInWEIasBN);
+
+        console.log('result31');
+        console.log(result31);
+        
 
         //console.log('parseInt of it is:');
         //const expectedBalanceAfterInWEIParsed = Number(expectedBalanceAfterInWEIasBN)
@@ -1342,6 +1347,15 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
       const testnum = new BN(10);
       console.log(testnum);
+
+      const testnum2 = new BN(20);
+      console.log(testnum2);
+
+      const testnum3 = testnum.add(testnum2);
+      console.log(testnum3);
+
+
+
       /*
       const testnumber40 = 31254365376342362423467374;  
       const testnumber40String = testnumber40.toString();
