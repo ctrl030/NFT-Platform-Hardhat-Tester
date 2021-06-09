@@ -1051,7 +1051,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
         const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
         const priceInWEIasBN = new BN(t31priceToPayInWEI);
-        const expectedBalanceAfterInWEIasBN = new BN (balanceBeforeInWEIasBN - priceInWEIasBN);
+        const expectedBalanceAfterInWEIasBN = balanceBeforeInWEIasBN - priceInWEIasBN;
 
 
         //console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
