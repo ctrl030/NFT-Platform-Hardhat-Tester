@@ -1044,11 +1044,10 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         let t31priceToPayInWEI = web3.utils.toWei(buyCountT31asString);  
         
         console.log('loop and tokenID', buyCountT31, 'has the price in WEI:', t31priceToPayInWEI, 'and this balance:', balanceInWEIBefore);
-        
-        
+                
 
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});  
-
+          /*
         const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
         const priceInWEIasBN = new BN(t31priceToPayInWEI);
         const expectedBalanceAfterInWEIasBN = balanceBeforeInWEIasBN.sub(priceInWEIasBN);
@@ -1088,7 +1087,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         // balance after buy
         //const balanceInWEIAfter = await web3.eth.getBalance(accounts[5]); 
         //console.log('accounts[5] has', parseInt(balanceInWEIAfter), 'WEI after buying Token ID', buyCountT31)       
-        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
+        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)*/
         
       }      
       const offersArray = [36,37,38];
