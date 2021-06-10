@@ -239,23 +239,15 @@ async function getNFTArrayOfAccount(acc){
 }
 
 // assert balance of account in WEI, must get as string 
-async function assertBalance(acc, expectedBalanceInWEI) {
+async function assertBalanceAsBN(acc, expectedBalanceInWEIasBN) {
 
-  const balanceInWEI = await web3.eth.getBalance(acc);
-  //const balanceInETH = web3.utils.fromWei(await web3.eth.getBalance(acc), 'ether');  
+  const balanceInWEI = await web3.eth.getBalance(acc); 
+  const balanceInWEIasBN = new BN(balanceInWEI);
 
-  //const balanceInWEIasString = balanceInWEI.toString() 
+  console.log('Incoming: expectedBalanceInWEIasBN', expectedBalanceInWEIasBN);
+  console.log('Result: balanceInWEIasBN:', balanceInWEIasBN);
 
-  const tenToPowerOf18 = 10**18;
-
-  const expectDividedByTenToPowerOf18 = expectedBalanceInWEI / tenToPowerOf18 ;
-  
-  const resultDividedByTenToPowerOf18 = balanceInWEI / tenToPowerOf18 ;
-
-  console.log('expectDividedByTenToPowerOf18', expectDividedByTenToPowerOf18);
-  console.log('resultDividedByTenToPowerOf18', resultDividedByTenToPowerOf18);
-
-  //assert.equal(resultDividedByTenToPowerOf21, expectDividedByTenToPowerOf21);
+  assert.equal(balanceInWEIasBN, expectedBalanceInWEIasBN);
 }
 
 
@@ -796,8 +788,8 @@ contract('MonkeyContract with HH', accounts => {
          
         
           // comparing first 2 digits of genes
-          let stringOfNFTGenesNow = newMonkeyTokenIdTestingDetails.genes.toString();
-          console.log('Breed Nr.' + index + ' genes are ' + stringOfNFTGenesNow);  
+          //let stringOfNFTGenesNow = newMonkeyTokenIdTestingDetails.genes.toString();
+          //console.log('Breed Nr.' + index + ' genes are ' + stringOfNFTGenesNow);  
           /*firstTwoDigitsNFTNow = parseInt(stringOfNFTGenesNow.charAt(0)+stringOfNFTGenesNow.charAt(1));
           //console.log('Breed Nr.' + index + ' first 2 gene digits LAST are ' + firstTwoDigitsNFTLast); 
           //console.log('Breed Nr.' + index + ' first 2 gene digits NOW are ' + firstTwoDigitsNFTNow);  
@@ -1047,12 +1039,10 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
                 
 
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});  
-          /*
+        
         const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
         const priceInWEIasBN = new BN(t31priceToPayInWEI);
         const expectedBalanceAfterInWEIasBN = balanceBeforeInWEIasBN.sub(priceInWEIasBN);
-        const result31 = expectedBalanceAfterInWEIasBN.toNumber();
-
 
         //console.log('loop and tokenID', buyCountT31, 'has the expectedBalanceAfterInWEI:', expectedBalanceAfterInWEI);
         //console.log('loop and tokenID', buyCountT31, 'has the balanceBeforeInWEIasBN:');
@@ -1072,22 +1062,18 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         console.log('expectedBalanceAfterInWEIasBN');
         console.log(expectedBalanceAfterInWEIasBN);
 
-        console.log('result31');
-        console.log(result31);
-        
-
         //console.log('parseInt of it is:');
         //const expectedBalanceAfterInWEIParsed = Number(expectedBalanceAfterInWEIasBN)
         //console.log(expectedBalanceAfterInWEIParsed);
 
         //const expectedBalanceAfterInWEIasString = expectedBalanceAfterInWEI.toString();       
         
-        //await assertBalance(accounts[5], expectedBalanceAfterInWEI);
+        await assertBalanceAsBN(accounts[5], expectedBalanceAfterInWEIasBN);
 
         // balance after buy
         //const balanceInWEIAfter = await web3.eth.getBalance(accounts[5]); 
         //console.log('accounts[5] has', parseInt(balanceInWEIAfter), 'WEI after buying Token ID', buyCountT31)       
-        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)*/
+        //console.log('accounts[5] has', parseInt(balanceInETHAfter), 'ether after buying Token ID', buyCountT31)
         
       }      
       const offersArray = [36,37,38];
