@@ -238,16 +238,20 @@ async function getNFTArrayOfAccount(acc){
   return convertedNumArr;
 }
 
-// assert balance of account in WEI, must get as string 
+// assert balance of account
 async function assertBalanceAsBN(acc, expectedBalanceInWEIasBN) {
 
   const balanceInWEI = await web3.eth.getBalance(acc); 
-  const balanceInWEIasBN = new BN(balanceInWEI);
+  //const balanceInWEIasBN = new BN(balanceInWEI);
+
+  const parsedExpected = parseInt(expectedBalanceInWEIasBN);
+  console.log('Incoming parsed: parsedExpected:', parsedExpected);
 
   console.log('Incoming: expectedBalanceInWEIasBN', expectedBalanceInWEIasBN);
-  console.log('Result: balanceInWEIasBN:', balanceInWEIasBN);
+  console.log('Result: balanceInWEI:', balanceInWEI);
+  //console.log('Result: balanceInWEIasBN:', balanceInWEIasBN);  
 
-  assert.equal(balanceInWEIasBN, expectedBalanceInWEIasBN);
+  assert.equal(balanceInWEI, expectedBalanceInWEIasBN);
 }
 
 
@@ -1036,8 +1040,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         let t31priceToPayInWEI = web3.utils.toWei(buyCountT31asString);  
         
         console.log('loop and tokenID', buyCountT31, 'has the price in WEI:', t31priceToPayInWEI, 'and this balance:', balanceInWEIBefore);
-                
-
+        
         await monkeyMarketplaceHHInstance.buyMonkey(buyCountT31, {from: accounts[5], value: t31priceToPayInWEI});  
         
         const balanceBeforeInWEIasBN = new BN(balanceInWEIBefore);
@@ -1049,10 +1052,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         //console.log(balanceBeforeInWEIasBN);
 
         //console.log('loop and tokenID', buyCountT31, 'has the priceInWEIasBN:');
-        //console.log(priceInWEIasBN);
-
-        console.log('loop and tokenID', buyCountT31);
-
+        //console.log(priceInWEIasBN);        
+        /*
         console.log('priceInWEIasBN');
         console.log(priceInWEIasBN);
 
@@ -1060,7 +1061,7 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
         console.log(balanceBeforeInWEIasBN);
 
         console.log('expectedBalanceAfterInWEIasBN');
-        console.log(expectedBalanceAfterInWEIasBN);
+        console.log(expectedBalanceAfterInWEIasBN);*/
 
         //console.log('parseInt of it is:');
         //const expectedBalanceAfterInWEIParsed = Number(expectedBalanceAfterInWEIasBN)
