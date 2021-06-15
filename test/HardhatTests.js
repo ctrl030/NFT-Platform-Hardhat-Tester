@@ -1022,3 +1022,9 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
   });
 
 });
+
+
+module.exports = {
+  monkeyContractHHInstance,
+  monkeyMarketplaceHHInstance
+}
