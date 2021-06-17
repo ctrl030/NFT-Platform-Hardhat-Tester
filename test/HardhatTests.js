@@ -2,7 +2,7 @@ const MonkeyContract = artifacts.require('MonkeyContract');
 const MonkeyMarketplace = artifacts.require('MonkeyMarketplace');
 const { expectRevert, expectEvent, balance, BN } = require('@openzeppelin/test-helpers');
 const { assert } = require('hardhat');
-let {
+var {
   assertAmountofNFTs,
   assertOwnerAndGeneration,
   assertOfferDetailsForTokenID,
