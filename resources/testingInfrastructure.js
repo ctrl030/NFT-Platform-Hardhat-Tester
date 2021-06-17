@@ -2,9 +2,12 @@
 // deep comparing an array of Token IDs to the queried array in the _owners2tokenIdArrayMapping
 // for now must have "let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per run
 let collectingArray = []; // put into global scope
+let monkeyContractHHInstance;
+let monkeyMarketplaceHHInstance;
 
+/*
 let {monkeyContractHHInstance,
-  monkeyMarketplaceHHInstance} = require('../test/HardhatTests.js');
+  monkeyMarketplaceHHInstance} = require('../test/HardhatTests.js');*/
 
 // asserting a specific amount of NFTs for an account
 async function assertAmountofNFTs(accToCheck, expectedAmount){

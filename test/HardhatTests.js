@@ -29,11 +29,14 @@ let {
   showingTokenIDsWithActiveOffer,
   assertAmountOfActiveOffersAndCount,
   
+  monkeyContractHHInstance,
+  monkeyMarketplaceHHInstance,
+
   collectingArray  
 } = require('../resources/testingInfrastructure.js');
 
-let monkeyContractHHInstance;
-let monkeyMarketplaceHHInstance;
+//let monkeyContractHHInstance;
+//let monkeyMarketplaceHHInstance;
 
 // this array serves as will receive the generated Hardhat addresses,
 // i.e. accountToAddressArray[0] will hold the address of accounts[0]
@@ -1023,8 +1026,8 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
 
 });
 
-
+/*
 module.exports = {
   monkeyContractHHInstance,
   monkeyMarketplaceHHInstance
-}
+}*/
