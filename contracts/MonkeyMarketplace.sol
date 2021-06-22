@@ -7,6 +7,7 @@ import "./IMonkeyMarketplace.sol";
 import "./Safemath.sol";
 
 import "hardhat/console.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   using SafeMath for uint256;
@@ -227,7 +228,6 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   function showLengthOfOffersArray() external view onlyOwner returns(uint256 length) {
     return offersArray.length;
   }
-
   
   function showOfferArrayEntry(uint256 arrayPosition) external view onlyOwner returns(address seller, uint256 price, uint256 index, uint256 tokenId, bool active) { 
 

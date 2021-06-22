@@ -124,7 +124,7 @@ async function assertPosIntegrAllNFTs(){
 }
 
 // deep comparing an array of Token IDs to the queried array in the _owners2tokenIdArrayMapping
-// for now must have "let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per run
+// for now must have " let collectingArray = []; " state variable, can't send list that will be kept, only 1 arg per call
 let collectingArray = []; // put into global scope
 async function deepCompareNFTArray (accountToTest, expectedArray) {
 
@@ -253,9 +253,6 @@ async function assertBalanceAsBN(acc, expectedBalanceInWEIasBN) {
 
   assert.equal(balanceInWEI, expectedBalanceInWEIasBN);
 }
-
-
-
 
 
 

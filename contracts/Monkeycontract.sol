@@ -14,35 +14,35 @@ import "./IERC721Receiver.sol";
 
 contract MonkeyContract is IERC721, Ownable {
 
-    // using safemath for all uint256 numbers, 
-    // use uint256 and (.add) and (.sub)
-    using SafeMath for uint256;
+  // using safemath for all uint256 numbers, 
+  // use uint256 and (.add) and (.sub)
+  using SafeMath for uint256;
 
 
-    // State variables
+  // State variables
 
-    // MonkeyContract address
-    address _monkeyContractAddress;   
+  // MonkeyContract address
+  address _monkeyContractAddress;   
 
-    // implementation of ERC721 
-    bytes4 internal constant confirmingERC721Received = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
-    bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
-    bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7; 
+  // implementation of ERC721 
+  bytes4 internal constant confirmingERC721Received = bytes4(keccak256("onERC721Received(address,address,uint256,bytes)"));
+  bytes4 private constant _INTERFACE_ID_ERC721 = 0x80ac58cd;
+  bytes4 private constant _INTERFACE_ID_ERC165 = 0x01ffc9a7; 
 
-    // Only 12 monkeys can be created from scratch (generation 0)
-    uint256 public GEN0_Limit = 12;
-    uint256 public gen0amountTotal;
+  // Only 12 monkeys can be created from scratch (generation 0)
+  uint256 public GEN0_Limit = 12;
+  uint256 public gen0amountTotal;
 
-    // name will be set to "Crypto Monkeys"
-    string private _name;
+  // name will be set to "Crypto Monkeys"
+  string private _name;
 
-    // ticker symbol will be set to "MONKEY"
-    string private _symbol;
+  // ticker symbol will be set to "MONKEY"
+  string private _symbol;
 
-    // amount of NFTs total in existence - can be queried by showTotalSupply function    
-    uint256 public totalSupply;
+  // amount of NFTs total in existence - can be queried by showTotalSupply function    
+  uint256 public totalSupply;
 
-    // this struct is the blueprint for new NFTs, they will be created from it
+  // this struct is the blueprint for new NFTs, they will be created from it
     struct CryptoMonkey {        
         uint256 parent1Id;
         uint256 parent2Id;
