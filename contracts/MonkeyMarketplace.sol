@@ -1,4 +1,4 @@
-pragma solidity ^0.5.12;
+pragma solidity ^0.8.0;
 
 import "./Monkeycontract.sol";
 import "./Ownable.sol";
@@ -7,6 +7,8 @@ import "./IMonkeyMarketplace.sol";
 import "./Safemath.sol";
 
 import "hardhat/console.sol";
+
+// importing openzeppelin script to guard against re-entrancy
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {

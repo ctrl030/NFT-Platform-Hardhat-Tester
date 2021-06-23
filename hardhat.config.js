@@ -4,7 +4,7 @@ require("@nomiclabs/hardhat-truffle5");
  * @type import('hardhat/config').HardhatUserConfig
  */
 module.exports = {
-  solidity: "0.5.12",
+  solidity: "0.8.0",
   networks: { 
     hardhat: {                      
     gasPrice: 0 

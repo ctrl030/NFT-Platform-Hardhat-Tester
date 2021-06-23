@@ -1,4 +1,4 @@
-pragma solidity 0.5.12;
+pragma solidity ^0.8.0;
 
 // preparing for some functions to be restricted 
 import "./Ownable.sol";
@@ -12,7 +12,10 @@ import "./IERC721.sol";
 // importing interface to check if receiving address is a contract
 import "./IERC721Receiver.sol";
 
-contract MonkeyContract is IERC721, Ownable {
+// importing openzeppelin script to guard against re-entrancy
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+
+contract MonkeyContract is IERC721, Ownable, ReentrancyGuard {
 
   // using safemath for all uint256 numbers, 
   // use uint256 and (.add) and (.sub)
