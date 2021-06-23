@@ -11,7 +11,7 @@ import "hardhat/console.sol";
 // importing openzeppelin script to guard against re-entrancy
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
+contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard  {
   using SafeMath for uint256;
   
   MonkeyContract private _monkeycontract;
@@ -194,7 +194,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace  {
   * Requirement: The msg.value needs to equal the price of _tokenId
   * Requirement: There must be an active offer for _tokenId
   */
-  function buyMonkey(uint256 _tokenId) external payable {    
+  function buyMonkey(uint256 _tokenId) external payable nonReentrant {    
 
     Offer memory tokenOffer = tokenIdToOfferMapping[_tokenId];
     
