@@ -11,7 +11,10 @@ import "hardhat/console.sol";
 // importing openzeppelin script to guard against re-entrancy
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard  {
+// importing openzeppelin script to make contract pausable
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard, Pausable {
   using SafeMath for uint256;
   
   MonkeyContract private _monkeycontract;
@@ -124,7 +127,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard  {
   * Requirement: There can only be one active offer for a token at a time.
   * Requirement: Marketplace contract (this) needs to be an approved operator when the offer is created.
   */    
-  function setOffer(uint256 _price, uint256 _tokenId) external {    
+  function setOffer(uint256 _price, uint256 _tokenId) external whenNotPaused {    
 
     //  Only the owner of _tokenId can create an offer.
     address monkeyOwner = _monkeycontract.ownerOf(_tokenId);
@@ -170,7 +173,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard  {
   * Emits the MarketTransaction event with txType "Remove offer"
   * Requirement: Only the seller of _tokenId can remove an offer.
   */
-  function removeOffer(uint256 _tokenId) external {
+  function removeOffer(uint256 _tokenId) external whenNotPaused {
 
     Offer memory tokenOffer = tokenIdToOfferMapping[_tokenId];
 
@@ -194,7 +197,7 @@ contract MonkeyMarketplace is Ownable, IMonkeyMarketplace, ReentrancyGuard  {
   * Requirement: The msg.value needs to equal the price of _tokenId
   * Requirement: There must be an active offer for _tokenId
   */
-  function buyMonkey(uint256 _tokenId) external payable nonReentrant {    
+  function buyMonkey(uint256 _tokenId) external payable nonReentrant whenNotPaused{    
 
     Offer memory tokenOffer = tokenIdToOfferMapping[_tokenId];
     

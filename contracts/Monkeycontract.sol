@@ -15,7 +15,10 @@ import "./IERC721Receiver.sol";
 // importing openzeppelin script to guard against re-entrancy
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract MonkeyContract is IERC721, Ownable, ReentrancyGuard {
+// importing openzeppelin script to make contract pausable
+import "@openzeppelin/contracts/security/Pausable.sol";
+
+contract MonkeyContract is IERC721, Ownable, ReentrancyGuard, Pausable {
 
   // using safemath for all uint256 numbers, 
   // use uint256 and (.add) and (.sub)
@@ -157,7 +160,7 @@ contract MonkeyContract is IERC721, Ownable, ReentrancyGuard {
         return _monkeyContractAddress;
     }    
 
-    function supportsInterface (bytes4 _interfaceId) external view returns (bool){
+    function supportsInterface (bytes4 _interfaceId) external view returns (bool) {
         return (_interfaceId == _INTERFACE_ID_ERC721 || _interfaceId == _INTERFACE_ID_ERC165);
     }
 
@@ -560,12 +563,12 @@ contract MonkeyContract is IERC721, Ownable, ReentrancyGuard {
     }
 
     // internal function for transferring, cannot be called from outside the contract
-    function _transferCallfromInside(
+    function _transferCallfromInside (
         address _transferSender, // i.e. owner so far or operator
         address _monkeyOwner, // i.e. owner so far 
         address _to, // i.e. new owner 
         uint256 _tokenId
-    ) internal {
+    ) internal nonReentrant whenNotPaused {
         
         // deleting any allowed address for the transfered NFT
         delete _NFT2AllowedAddressMapping[_tokenId];
