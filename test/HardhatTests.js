@@ -11,19 +11,24 @@ let monkeyMarketplaceHHInstance;
 // can be queried by showAllAccounts and findAccountForAddress
 let accountToAddressArray = [];
 
+let assertionCounter = 0;
+
 // asserting a specific amount of NFTs for an account
 async function assertAmountofNFTs(accToCheck, expectedAmount){
 // checking how many NFTs are owned by account 'acc', should be 'amount' 
 const prepAmountNFTsAcc = await monkeyContractHHInstance.balanceOf(accToCheck);
 const ammountNFTsAcc = parseInt(prepAmountNFTsAcc) ;
 assert.equal(ammountNFTsAcc, expectedAmount)
+assertionCounter++;
 }
 
 // asserting owner and generation for an NFT
 async function assertOwnerAndGeneration(ownerToExpect, tokenId, genToExpect){
   let testOwnAndGenDetails  = await monkeyContractHHInstance.getMonkeyDetails(tokenId); 
-  assert.equal(testOwnAndGenDetails.owner, ownerToExpect);
+  assert.equal(testOwnAndGenDetails.owner, ownerToExpect);  
   assert.equal(testOwnAndGenDetails.generation, genToExpect);
+  assertionCounter++;
+  assertionCounter++;
 }
 
 // assert an offer's details
@@ -44,6 +49,11 @@ async function assertOfferDetailsForTokenID(tokenId, expectedActive, expectedSel
   assert.equal(returnedSeller, expectedSeller);
   assert.equal(priceInETHTestingResult, expectedPriceInETH);
   assert.equal(priceInWEITestingResult, expectedPriceInWEI);
+  assertionCounter++;
+  assertionCounter++;
+  assertionCounter++;
+  assertionCounter++;
+  assertionCounter++;
 }
 
 // creates an offer and asserts if values are correct
@@ -64,6 +74,7 @@ async function giveMarketOperatorAndAssertAndCount (acc) {
   await monkeyContractHHInstance.setApprovalForAll(monkeyMarketplaceHHInstance.address, true, {from: acc});
   let resultMarketOpTest = await monkeyContractHHInstance.isApprovedForAll(acc, monkeyMarketplaceHHInstance.address);     
   assert.equal(resultMarketOpTest, true);
+  assertionCounter++;
 }
 
 // uses findNFTposition while skipping zero entries and and converting the result to normal number
@@ -92,7 +103,8 @@ async function assertPosIntegrAllNFTs(){
   // asserting the Zero Monkey was burnt and owned by Zero Address
   const zeroMonkeyOwner = await monkeyContractHHInstance.ownerOf(0);
   assert.equal(zeroMonkeyOwner, '0x0000000000000000000000000000000000000000');
-  
+  assertionCounter++;
+
   // looping through all NFTs that exist 
   for (let assertAllIndex = 1; assertAllIndex < totalSupplyAmount; assertAllIndex++) {
 
@@ -117,7 +129,8 @@ async function assertPosIntegrAllNFTs(){
     // checking the _owners2tokenIdArrayMapping at the position that was found in the MonkeyIdPositionsMapping
     const tokenFound = arrayOfFoundNFTs[positionFound];    
     
-    assert.equal(tokenFound, assertAllIndex);    
+    assert.equal(tokenFound, assertAllIndex);
+    assertionCounter++;    
     //console.log('Token ID', assertAllIndex, 'was in the correct position');
     //console.log('-------------------------');
   }
@@ -136,6 +149,9 @@ async function deepCompareNFTArray (accountToTest, expectedArray) {
 
   // comparing both arrays
   assert.deepEqual(queriedArray, collectingArray);
+  for (let assertionIndex = 0; assertionIndex < queriedArray.length; assertionIndex++) {  
+    assertionCounter++;
+  }
 
   //console.log('NFT array of', findAccountForAddress(accountToTest), 'is exactly as expected.');
 
@@ -169,6 +185,7 @@ async function assertPosOfSpecificNFTinArray(accountToTest, tokenIdtoCheck, expe
   const tokenFound = expectedArray[positionFound];
 
   assert.equal(tokenFound, tokenIdtoCheck);
+  assertionCounter++;
 
 }
 
@@ -192,6 +209,7 @@ async function assertPositionIntegrityOfSpecificNFT(tokenIdtoCheck){
   const tokenFound = arrayOfFoundNFTs[positionFound];
 
   assert.equal(tokenFound, tokenIdtoCheck);
+  assertionCounter++;
 }
 
 // asserting correct entry in all 4 NFT trackers
@@ -212,6 +230,7 @@ async function assertAllFourTrackersCorrect (accToQuery, expectedAmount, expecte
 async function assertOwnerMapping(tokenIdTocheck, expectedOwnerAcc){
  const checkedTokenIdOwner = await monkeyContractHHInstance.ownerOf(tokenIdTocheck);
  assert.equal(checkedTokenIdOwner, expectedOwnerAcc);
+ assertionCounter++;
 }
 
 // querying an accounts NFT array entry in _owners2tokenIdArrayMapping via findMonkeyIdsOfAddress
@@ -252,6 +271,7 @@ async function assertBalanceAsBN(acc, expectedBalanceInWEIasBN) {
   //console.log('Result: balanceInWEIasBN:', balanceInWEIasBN);  
 
   assert.equal(balanceInWEI, expectedBalanceInWEIasBN);
+  assertionCounter++;
 }
 
 
@@ -379,8 +399,12 @@ async function assertAmountOfActiveOffersAndCount(expectedAmount, expectedTokens
     
   }      
   assert.deepEqual(convertedNumArr, expectedTokensArray);
+  for (let assertionIndex = 0; assertionIndex < convertedNumArr.length; assertionIndex++) {  
+  assertionCounter++;
+  }
   
   assert.equal(activeOffersAmount, expectedAmount);
+  assertionCounter++;
 }
 
 // Main contract Hardhat test with openzeppelin, Truffle and web3
@@ -404,26 +428,30 @@ contract('MonkeyContract with HH', accounts => {
     
     it('Test 1: accounts[0] should be deployer of main contract', async () => {  
       
-      const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()
+      const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner();
       
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
+      assertionCounter++;
     }) 
 
     it('Test 1A: getMonkeyContractAddress() should show the correct address of deployed main contract', async () => {  
       
       const callTestedAddress = await monkeyContractHHInstance.getMonkeyContractAddress();   
       assert.equal(callTestedAddress, monkeyContractHHInstance.address);
+      assertionCounter++;
 
     })    
     
     it('Test 2: _name should be "Crypto Monkeys"', async () => {  
       // console.log(monkeyContractHHInstance._name)
-      assert.equal(await monkeyContractHHInstance.name(), 'Crypto Monkeys')        
+      assert.equal(await monkeyContractHHInstance.name(), 'Crypto Monkeys');
+      assertionCounter++;        
     })
 
     
     it('Test 3: _symbol should be "MONKEY"', async () => {
-      assert.equal(await monkeyContractHHInstance.symbol(), 'MONKEY')      
+      assert.equal(await monkeyContractHHInstance.symbol(), 'MONKEY');
+      assertionCounter++;      
     })              
     
     
@@ -431,7 +459,8 @@ contract('MonkeyContract with HH', accounts => {
       //console.log('Console.log is available here')
       const limit = await monkeyContractHHInstance.GEN0_Limit();
       //console.log('GEN0_Limit is', Number(limit));
-      assert.equal(limit, 12); 
+      assert.equal(limit, 12);
+      assertionCounter++; 
     });
 
      
@@ -440,12 +469,14 @@ contract('MonkeyContract with HH', accounts => {
       //const zeroMonkeytest1 = await monkeyContractHHInstance.getMonkeyDetails(0);
       //console.log(zeroMonkeytest1);
       assert.equal(totalSupplyAfterDeployment, 1);
+      assertionCounter++;
     });
     
     
     it('Test 6: Zero Monkey should be owned by zero address', async () => {  
       const zeroMonkeytest2 = await monkeyContractHHInstance.ownerOf(0);      
-      assert.equal(zeroMonkeytest2, 0x0000000000000000000000000000000000000000)  
+      assert.equal(zeroMonkeytest2, 0x0000000000000000000000000000000000000000);
+      assertionCounter++;  
     });
 
     
@@ -454,6 +485,7 @@ contract('MonkeyContract with HH', accounts => {
       const zeroGenesNumber = zeroMonkeytest3.genes.toNumber();
       // console.log(zeroGenesNumber);
       assert.equal(zeroGenesNumber, 1214131177989271)
+      assertionCounter++;
       //console.log('Zero monkey is over 9000')
     }); 
   })
@@ -472,22 +504,25 @@ contract('MonkeyContract with HH', accounts => {
         
         
         const receipt = await monkeyContractHHInstance.createGen0Monkey(concattedIndexes, {from: accounts[0]});        
-        expectEvent(receipt, 'MonkeyCreated', { genes: `${concattedIndexes}` });
+        expectEvent(receipt, 'MonkeyCreated', { genes: `${concattedIndexes}` });        
         
         const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(i);
         const genesTested = parseInt(genesTestedDetails.genes);
         const compareConcats = parseInt(concattedIndexes); 
-        assert.equal(genesTested, compareConcats)       
+        assert.equal(genesTested, compareConcats);
+        assertionCounter++;       
         
         // checking how many NFTs are owned by accounts[0] after each loop
         const prepAmountNFTsForAccounts0 = await monkeyContractHHInstance.balanceOf(accounts[0]);
         const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;        
-        assert.equal(amountNFTsForAccounts0, i)
+        assert.equal(amountNFTsForAccounts0, i);
+        assertionCounter++;
       }
 
       // checking total supply of NFTs, should be 10, one Zero Monkey plus 9 gen0
       const totalSupplyAfterCreating10 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(totalSupplyAfterCreating10, 10);      
+      assert.equal(totalSupplyAfterCreating10, 10);
+      assertionCounter++;      
       
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9 ];
       await assertAllFourTrackersCorrect (accounts[0], 9,  account0ArrayToAssert);
@@ -507,7 +542,8 @@ contract('MonkeyContract with HH', accounts => {
         const genesTestedDetails = await monkeyContractHHInstance.getMonkeyDetails(correctTokenID);
         const genesTested = parseInt(genesTestedDetails.genes); 
         const correctGenes = parseInt(1111111111111111)
-        assert.equal(genesTested, correctGenes);        
+        assert.equal(genesTested, correctGenes);
+        assertionCounter++;        
 
         // checking if MonkeyCreated event was correctly triggered
         expectEvent(receipt2, 'MonkeyCreated', { genes: `${correctGenes}` }); 
@@ -517,9 +553,11 @@ contract('MonkeyContract with HH', accounts => {
         const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;
         //console.log(amountNFTsForAccounts0);
         assert.equal(amountNFTsForAccounts0, correctTokenID)
+        assertionCounter++;
       }
       const totalSupplyAfterCreating12 = await monkeyContractHHInstance.totalSupply();      
-      assert.equal(parseInt(totalSupplyAfterCreating12), 12);        
+      assert.equal(parseInt(totalSupplyAfterCreating12), 12); 
+      assertionCounter++;       
       
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 ];
       await assertAllFourTrackersCorrect (accounts[0], 11,  account0ArrayToAssert);
@@ -544,10 +582,12 @@ contract('MonkeyContract with HH', accounts => {
       const prepAmountNFTsForAccounts0 = await monkeyContractHHInstance.balanceOf(accounts[0]);
       const amountNFTsForAccounts0 = parseInt(prepAmountNFTsForAccounts0) ;
       
-      assert.equal(amountNFTsForAccounts0, 12)
+      assert.equal(amountNFTsForAccounts0, 12);
+      assertionCounter++;
 
       const totalSupplynow2 = await monkeyContractHHInstance.showTotalSupply();    
       assert.equal(parseInt(totalSupplynow2), 13);
+      assertionCounter++;
 
       const account0ArrayToAssert = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 ];
       await assertAllFourTrackersCorrect (accounts[0], 12,  account0ArrayToAssert);
@@ -573,6 +613,7 @@ contract('MonkeyContract with HH', accounts => {
       const operatorGivenApprovalTesting = await monkeyContractHHInstance.isApprovedForAll(accounts[0], accounts[1]);
        
       assert.equal(operatorGivenApprovalTesting, true);
+      assertionCounter++;
      
     });
 
@@ -584,6 +625,7 @@ contract('MonkeyContract with HH', accounts => {
       // console.log('operator status for accounts[1] is:', operatorTakenApprovalTesting);    
       
       assert.equal(operatorTakenApprovalTesting, false);
+      assertionCounter++;
     });
 
     it('Test 15: accounts[0] should give accounts[1] operator status again', async() => {  
@@ -593,7 +635,8 @@ contract('MonkeyContract with HH', accounts => {
 
       const operatorGivenApprovalTesting = await monkeyContractHHInstance.isApprovedForAll(accounts[0], accounts[1]);
         
-      assert.equal(operatorGivenApprovalTesting, true);     
+      assert.equal(operatorGivenApprovalTesting, true);
+      assertionCounter++;     
     });
 
     it('Test 15A: accounts[0] should use safeTransferFrom with sending data to move Token ID 1 from itself to accounts[2]', async() => {  
@@ -602,7 +645,8 @@ contract('MonkeyContract with HH', accounts => {
 
       const testingMonkey = await monkeyContractHHInstance.getMonkeyDetails(1);
       
-      assert.equal(testingMonkey.owner, accounts[2]);      
+      assert.equal(testingMonkey.owner, accounts[2]);
+      assertionCounter++;      
 
       await assertPosIntegrAllNFTs();
 
@@ -624,7 +668,8 @@ contract('MonkeyContract with HH', accounts => {
 
         const testingMonkey = await monkeyContractHHInstance.getMonkeyDetails(index);
       
-        assert.equal(testingMonkey.owner, accounts[2]);        
+        assert.equal(testingMonkey.owner, accounts[2]);
+        assertionCounter++;        
       }
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 6, 7, 8, 9, 10, 11, 12 ];
@@ -647,7 +692,8 @@ contract('MonkeyContract with HH', accounts => {
 
         const testingMonkey = await monkeyContractHHInstance.getMonkeyDetails(index);
       
-        assert.equal(testingMonkey.owner, accounts[1]);        
+        assert.equal(testingMonkey.owner, accounts[1]);
+        assertionCounter++;        
       }
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -666,6 +712,7 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr7 = await monkeyContractHHInstance.getMonkeyDetails(7);
 
       assert.equal(testingMonkeyNr7.approvedAddress, accounts[2]);
+      assertionCounter++;
 
     });
 
@@ -674,6 +721,7 @@ contract('MonkeyContract with HH', accounts => {
       const testingAllowedAddressForMonkeyId7 = await monkeyContractHHInstance.getApproved(7);
 
       assert.equal(testingAllowedAddressForMonkeyId7, accounts[2]);
+      assertionCounter++;
 
     });
     
@@ -684,6 +732,7 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr7 = await monkeyContractHHInstance.getMonkeyDetails(7);
 
       assert.equal(testingMonkeyNr7.owner, accounts[2]);
+      assertionCounter++;
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
@@ -705,6 +754,7 @@ contract('MonkeyContract with HH', accounts => {
       const testingMonkeyNr6 = await monkeyContractHHInstance.getMonkeyDetails(6);
       
       assert.equal(testingMonkeyNr6.owner, accounts[3]);
+      assertionCounter++;
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
@@ -736,6 +786,7 @@ contract('MonkeyContract with HH', accounts => {
       //console.log('testingMonkey5.owner is', testingMonkey5.owner);
 
       assert.equal(testingMonkey5.owner, accounts[3]);
+      assertionCounter++;
     });
     
     it('Test 21Placeholder: accounts[2] should use safeTransferFrom to move NFT with Token ID 5 from accounts[2] to accounts[3] (test cant send data atm, fix test 21)', async() => {       
@@ -749,6 +800,7 @@ contract('MonkeyContract with HH', accounts => {
       //console.log('testingMonkey5.owner is', testingMonkey5.owner);
 
       assert.equal(testingMonkey5.owner, accounts[3]);
+      assertionCounter++;
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
       await assertAllFourTrackersCorrect (accounts[0], 0,  account0ArrayToAssert);
@@ -779,6 +831,7 @@ contract('MonkeyContract with HH', accounts => {
       const amountNFTsForAccounts3 = parseInt(prepAmountNFTsForAccounts3) ;
       //console.log('at start of Test 22 accounts[3] has this many NFTs: ' + amountNFTsForAccounts3);
       assert.equal(amountNFTsForAccounts3, 2);
+      assertionCounter++;
       
       for (let index = 1; index <= 14; index++) {   
 
@@ -795,18 +848,20 @@ contract('MonkeyContract with HH', accounts => {
           //console.log('Breed Nr.' + index + ' first 2 gene digits LAST are ' + firstTwoDigitsNFTLast); 
           //console.log('Breed Nr.' + index + ' first 2 gene digits NOW are ' + firstTwoDigitsNFTNow);  
           assert.notEqual(firstTwoDigitsNFTNow, firstTwoDigitsNFTLast);
-
+          assertionCounter++;
           // the 'NFT to check now' becomes the 'last NFT checked' for next loop
           firstTwoDigitsNFTLast = firstTwoDigitsNFTNow;*/
         
 
         // checking if contract owner is owner of NFT
-        assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[3]); 
+        assert.equal(newMonkeyTokenIdTestingDetails.owner, accounts[3]);
+        assertionCounter++; 
         
         // checking how many NFTs are owned by accounts[3] at the start, should be increasing, starting with 3, go up to 16
         const loopPrepAmountNFTsForAccounts3 = await monkeyContractHHInstance.balanceOf(accounts[3]);
         const loopAmountNFTsForAccounts3 = parseInt(loopPrepAmountNFTsForAccounts3);        
         assert.equal(loopAmountNFTsForAccounts3, index + 2);
+        assertionCounter++;
       }
       
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -832,6 +887,7 @@ contract('MonkeyContract with HH', accounts => {
       // querying Token details and comparing owenership to new account
       const testingMonkeyNr5 = await monkeyContractHHInstance.getMonkeyDetails(5);        
       assert.equal(testingMonkeyNr5.owner, accounts[4]);
+      assertionCounter++;
 
       // repeat for Token ID 6
       await monkeyContractHHInstance.safeTransferFrom(accounts[3], accounts[4], 6, { 
@@ -839,6 +895,7 @@ contract('MonkeyContract with HH', accounts => {
       });        
       const testingMonkeyNr6 = await monkeyContractHHInstance.getMonkeyDetails(6);        
       assert.equal(testingMonkeyNr6.owner, accounts[4]);
+      assertionCounter++;
       
       // repeat for Token ID 14
       await monkeyContractHHInstance.safeTransferFrom(accounts[3], accounts[4], 14, { 
@@ -846,13 +903,15 @@ contract('MonkeyContract with HH', accounts => {
       });  
       const testingMonkeyNr14 = await monkeyContractHHInstance.getMonkeyDetails(14);        
       assert.equal(testingMonkeyNr14.owner, accounts[4]);
+      assertionCounter++;
 
       // repeat for Token ID 15
       await monkeyContractHHInstance.safeTransferFrom(accounts[3], accounts[4], 15, { 
         from: accounts[3],
       });        
       const testingMonkeyNr15 = await monkeyContractHHInstance.getMonkeyDetails(15);        
-      assert.equal(testingMonkeyNr15.owner, accounts[4]);  
+      assert.equal(testingMonkeyNr15.owner, accounts[4]);
+      assertionCounter++;  
 
 
       const account0ArrayToAssert = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
@@ -955,17 +1014,20 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     
     it('Test 23: Market should know main contract address', async () => {        
       const mainContractAddressSavedInMarket = await monkeyMarketplaceHHInstance.returnMonkeyContract();      
-      assert.equal(mainContractAddressSavedInMarket, monkeyContractHHInstance.address);     
+      assert.equal(mainContractAddressSavedInMarket, monkeyContractHHInstance.address);
+      assertionCounter++;     
     }) 
  
     it('Test 24: accounts[0] should be deployer of main contract', async () => {        
       const monkeyContractHHInstanceOwner = await monkeyContractHHInstance.contractOwner()      
       assert.equal(monkeyContractHHInstanceOwner, accounts[0]);
+      assertionCounter++;
     }) 
     
     it('Test 25: accounts[0] should be deployer of market contract', async () => {        
       const marketContractHHInstanceOwner = await monkeyMarketplaceHHInstance.contractOwner()     
       assert.equal(marketContractHHInstanceOwner, accounts[0]);
+      assertionCounter++;
     }) 
 
   });
@@ -1326,38 +1388,10 @@ contract("MonkeyContract + MonkeyMarketplace with HH", accounts => {
     }); 
     
 
-    it('Test 40: should ', async () => {  
+    it('Test 40: should show how many assertions in testing were done', async () => {  
 
-      const testnum = new BN(10);
-      console.log(testnum);
+      console.log('During these Hardhat tests, at least', assertionCounter , 'assertions were succesfully proven correct.')
 
-      const testnum2 = new BN(20);
-      console.log(testnum2);
-
-      const testnum3 = testnum.add(testnum2);
-      console.log(testnum3);
-
-
-
-      /*
-      const testnumber40 = 31254365376342362423467374;  
-      const testnumber40String = testnumber40.toString();
-      //const testnumber40ToNumber = testnumber40.toNumber();
-      const testnumber40Number = Number(testnumber40);
-      const testnumber40parseInt = parseInt(testnumber40);
-
-      const tryingManualConverFactor = 10**21;
-      const manualTest= testnumber40 / tryingManualConverFactor;
-
-
-      console.log('testnumber40', testnumber40);
-      console.log('testnumber40String', testnumber40String);
-      //console.log('testnumber40ToNumber', testnumber40ToNumber);
-      console.log('testnumber40Number', testnumber40Number);
-      console.log('testnumber40parseInt', testnumber40parseInt);
-      console.log('tryingManualConverFactor', tryingManualConverFactor);
-
-      testnumber40*/      
 
     }); 
 
